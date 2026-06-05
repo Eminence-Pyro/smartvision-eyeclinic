@@ -1,100 +1,142 @@
 # 🏥 SmartVision — Anya Specialist Eye Clinic
 
-> **Full-stack clinic management system** — patient portal, staff workflow, AI chatbot (Zinny), telemedicine
-> Next.js 14 · Neon PostgreSQL · NextAuth · Cloudinary · Groq AI
+> **Full-stack clinic management system**
+> Next.js 14 · Neon PostgreSQL · NextAuth · Groq AI (Zinny) · Cloudinary · Paystack-ready
 
 🔗 **Repo:** `github.com/Eminence-Pyro/smartvision-eyeclinic`
-🚀 **Status:** Phase 1 & 2 complete — auth, DB schema, public website, patient portal, staff workflow
 
 ---
 
-## 🗺️ System Overview
-
-### User Roles
-| Role | Access |
-|---|---|
-| Admin | Full access + staff management |
-| Doctor | Patient records, clinical notes, prescriptions, scans, surgeries |
-| Front Desk | Register patients, vitals, queue |
-| VA Room | Visual acuity + IOP entry |
-| Accounts | Payment recording (cash/POS/transfer/HMO) |
-| Scan Room | Upload OCT/scan results |
-| Theatre | Surgery parameters, B-scan, pre-op |
-| Pharmacy | View + dispense prescriptions |
-| Patient | Own records, appointments, telemedicine |
-
-### Patient Flow
-```
-Arrive → Front Desk (register + vitals + tally)
-       → Accounts (consultation fee)
-       → VA Room (visual acuity + IOP)
-       → Doctor (diagnosis + prescription/scan/surgery booking)
-       → [Pharmacy | Scan Room → Doctor | Theatre → Accounts → Theatre]
-```
-
----
-
-## ⚡ Quick Start
+## ⚡ Quick Start (Local / Codespace)
 
 ```bash
+# 1. Clone
 git clone https://github.com/Eminence-Pyro/smartvision-eyeclinic.git
 cd smartvision-eyeclinic
+
+# 2. Install dependencies
 npm install
+
+# 3. Set up environment
 cp .env.example .env.local
-# Fill in all env vars (see below)
-npm run dev
-```
+# ↑ Fill in all values (see Environment Variables section below)
 
----
-
-## 🗄️ Database Setup (Neon PostgreSQL)
-
-1. Create a free database at [neon.tech](https://neon.tech)
-2. Copy the connection string to `DATABASE_URL` in `.env.local`
-3. Run the schema:
-
-```bash
-# Option A: paste schema.sql into Neon SQL editor
-# Option B: run migration script
+# 4. Set up database (run once)
 node scripts/migrate.js
-```
 
-Schema file: `src/lib/db/schema.sql`
+# 5. Run dev server
+npm run dev
+# → http://localhost:3000
+```
 
 ---
 
-## 🔑 Environment Variables
+## 🗝️ Environment Variables (.env.local)
 
 ```env
-# Database
-DATABASE_URL=postgresql://...
+# ── Database (Neon PostgreSQL — free at neon.tech) ──
+DATABASE_URL=postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/smartvision?sslmode=require
 
-# Auth
-NEXTAUTH_SECRET=...          # openssl rand -base64 32
+# ── Auth ──
+NEXTAUTH_SECRET=run-this: openssl rand -base64 32
 NEXTAUTH_URL=http://localhost:3000
 
-# Email (OTP + notifications)
+# ── Email (for OTP) — use Gmail App Password ──
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your@gmail.com
-SMTP_PASS=your-app-password
-SMTP_FROM="Anya Eye Clinic <noreply@...>"
+SMTP_PASS=your-16-char-app-password
+SMTP_FROM="Anya Eye Clinic <noreply@anyaeyeclinic.com>"
 
-# Cloudinary (scan image uploads)
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=...
-CLOUDINARY_API_KEY=...
-CLOUDINARY_API_SECRET=...
+# ── Cloudinary (scan image uploads) ──
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-# Paystack (activate when clinic has account)
-NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=...
-PAYSTACK_SECRET_KEY=...
+# ── Groq AI — Zinny chatbot (free at console.groq.com) ──
+GROQ_API_KEY=gsk_xxxxxxxxxxxx
 
-# Groq (Zinny AI chatbot)
-GROQ_API_KEY=...
+# ── Paystack (add when clinic is ready) ──
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_live_xxxx
+PAYSTACK_SECRET_KEY=sk_live_xxxx
 
-# Daily.co (telemedicine video)
-DAILY_API_KEY=...
+# ── App ──
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
+
+---
+
+## 🗺️ Pages & Routes
+
+### Public (no login needed)
+| Route | Description |
+|---|---|
+| `/` | Landing page — about, services, contact, Zinny chatbot |
+| `/portal/login` | Patient login (password or OTP) |
+| `/portal/register` | Patient self-registration |
+| `/staff/login` | Staff login |
+
+### Patient Portal (login required)
+| Route | Description |
+|---|---|
+| `/portal/dashboard` | Overview — visits, appointments, medications |
+| `/portal/appointments` | Book & view appointments |
+| `/portal/records` | Full medical records per visit |
+| `/portal/medications` | All prescriptions — active & dispensed |
+| `/portal/chat` | Chat with Zinny AI + book telemedicine |
+
+### Staff Portal (role-restricted)
+| Route | Roles |
+|---|---|
+| `/staff/dashboard` | All staff |
+| `/staff/front-desk` | Admin, Front Desk |
+| `/staff/va-room` | Admin, VA Room |
+| `/staff/accounts` | Admin, Accounts |
+| `/staff/doctor` | Admin, Doctor |
+| `/staff/scan-room` | Admin, Scan Room |
+| `/staff/theatre` | Admin, Theatre |
+| `/staff/pharmacy` | Admin, Pharmacy |
+| `/staff/admin` | Admin only |
+
+---
+
+## 🔄 Patient Flow
+
+```
+Arrive → Front Desk (register + vitals + tally number)
+       → Accounts (pay consultation fee — cash/POS/transfer/HMO)
+       → VA Room (visual acuity + IOP)
+       → Doctor (clinical notes, diagnosis, prescriptions)
+            ↓           ↓              ↓
+       Pharmacy    Scan Room       Theatre
+     (dispense)  (OCT/fundus  (surgery params,
+                  upload)      B-scan, lens)
+                     ↓              ↓
+               Back to Doctor   Accounts (pay)
+                                    ↓
+                              Theatre (pre-op)
+```
+
+---
+
+## 🗄️ Database Setup
+
+1. Create free database at [neon.tech](https://neon.tech)
+2. Copy connection string → `DATABASE_URL` in `.env.local`
+3. Run migration: `node scripts/migrate.js`
+
+Or paste `src/lib/db/schema.sql` directly into the Neon SQL editor.
+
+---
+
+## 🚀 Deploy to Vercel
+
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+Add all `.env.local` values in Vercel → Project Settings → Environment Variables.
 
 ---
 
@@ -103,99 +145,50 @@ DAILY_API_KEY=...
 ```
 src/
 ├── app/
-│   ├── (public)/                 ← Public website + patient portal
-│   │   ├── page.tsx              ← Landing page + Zinny chatbot
+│   ├── (public)/          ← Landing + patient portal
+│   │   ├── page.tsx       ← Landing page + Zinny button
 │   │   ├── portal/
-│   │   │   ├── login/            ← Patient login (password + OTP)
-│   │   │   ├── register/         ← Self-registration
-│   │   │   └── dashboard/        ← Patient dashboard (appointments, history)
-│   │   └── staff/login/          ← Staff login (dark theme)
-│   ├── (staff)/staff/            ← All staff pages (role-protected)
-│   │   ├── dashboard/            ← Role-aware dashboard
-│   │   ├── front-desk/           ← Register + vitals + queue
-│   │   ├── va-room/              ← Visual acuity + IOP
-│   │   ├── accounts/             ← Payments
-│   │   ├── doctor/               ← Clinical notes + prescriptions
-│   │   ├── scan-room/            ← Scan upload
-│   │   ├── theatre/              ← Surgery parameters
-│   │   ├── pharmacy/             ← Dispensing
-│   │   └── admin/                ← Staff management + reports
-│   └── api/                      ← All API routes
-│       ├── auth/                 ← NextAuth + OTP
-│       ├── patients/             ← Register + search
-│       ├── visits/               ← Create + list
-│       ├── vitals/               ← Record vitals
-│       ├── vision-assessment/    ← VA + IOP
-│       ├── payments/             ← Record payments
-│       ├── clinical-notes/       ← Doctor notes
-│       ├── prescriptions/        ← Medications
-│       ├── scans/                ← Scan results
-│       ├── surgeries/            ← Surgery records
-│       └── ai/chat/              ← Zinny AI (Groq)
+│   │   │   ├── login/     ← Email+password or OTP
+│   │   │   ├── register/
+│   │   │   ├── dashboard/ ← Patient overview
+│   │   │   ├── appointments/
+│   │   │   ├── records/   ← Full medical history
+│   │   │   ├── medications/
+│   │   │   └── chat/      ← Zinny AI + telemedicine
+│   │   └── staff/login/
+│   ├── (staff)/staff/     ← All staff pages
+│   │   ├── dashboard/     ← Role-aware dashboard
+│   │   ├── front-desk/    ← Register + vitals + queue
+│   │   ├── va-room/       ← VA + IOP form
+│   │   ├── accounts/      ← Payment recording
+│   │   ├── doctor/        ← Notes, Rx, scan/surgery booking
+│   │   ├── scan-room/     ← Scan upload (Cloudinary)
+│   │   ├── theatre/       ← Surgery params, B-scan
+│   │   ├── pharmacy/      ← Dispense medications
+│   │   └── admin/         ← Staff management
+│   └── api/               ← All API routes (protected)
 ├── components/
-│   ├── staff/                    ← Staff-specific components
-│   ├── patient/                  ← Patient portal components
-│   ├── ui/                       ← Shared UI primitives
-│   └── providers/                ← SessionProvider
+│   ├── ui/                ← Badge, Button, Card, Input…
+│   ├── staff/             ← StaffLayout, VitalsForm, QueuePanel…
+│   └── providers/
 └── lib/
-    ├── db/                       ← Neon client + schema.sql
-    ├── auth/                     ← NextAuth config + helpers
-    ├── types/                    ← All TypeScript types
-    └── utils.ts                  ← Shared utilities
+    ├── db/                ← Neon client + schema.sql
+    ├── auth/              ← NextAuth + OTP + patient number gen
+    ├── types/             ← All TypeScript types
+    └── utils.ts
 ```
 
 ---
 
-## 🗺️ Development Roadmap
+## 📋 Roadmap
 
-### ✅ Phase 1 — Foundation (Done)
-- [x] Project setup (Next.js 14, Neon, NextAuth)
-- [x] Complete database schema (14 tables)
-- [x] All TypeScript types
-- [x] Auth — staff + patient, JWT, OTP
-- [x] Role permission matrix
-
-### ✅ Phase 2 — Public Website (Done)
-- [x] Landing page (hero, services, about Dr. Anya, contact)
-- [x] Patient login (password + OTP toggle)
-- [x] Patient self-registration
-- [x] Staff login (dark theme)
-- [x] Zinny chatbot UI
-
-### 🔄 Phase 3 — Staff Workflow (In Progress)
-- [x] Front Desk — register + vitals + queue
-- [ ] VA Room — VA + IOP form
-- [ ] Accounts — payment recording
-- [ ] Doctor — clinical notes, prescriptions, scan/surgery booking
-- [ ] Scan Room — upload scan results (Cloudinary)
-- [ ] Theatre — surgery parameters, B-scan
-- [ ] Pharmacy — dispensing
-
-### 📋 Phase 4 — Patient Portal + AI
-- [ ] Patient dashboard (visit history, medications, appointments)
-- [ ] Online appointment booking + Paystack payment
-- [ ] Zinny AI (Groq-powered clinic chatbot)
-- [ ] Telemedicine text chat
-- [ ] Telemedicine video call (Daily.co)
-
-### 📋 Phase 5 — Admin + Reports
-- [ ] Admin staff management (create, assign roles, activate/deactivate)
-- [ ] Analytics dashboard (daily patients, revenue, surgery stats)
-- [ ] Data import from old system
-- [ ] Mobile-optimised views
+- [x] Phase 1 — Foundation (DB schema, auth, types)
+- [x] Phase 2 — Public website + patient portal auth
+- [x] Phase 3 — All 7 staff department screens
+- [x] Phase 4 — Patient portal (dashboard, records, Zinny AI, appointments, medications)
+- [ ] Phase 5 — Paystack online payments, telemedicine video (Daily.co), admin reports
+- [ ] Phase 6 — Data import from old system, mobile PWA, Nigerian language support
 
 ---
 
-## 🔐 Security Notes
-
-- Staff accounts are created by Admin only (CMD controls access)
-- JWT sessions expire in 24 hours
-- OTPs expire in 10 minutes
-- All API routes protected by `getServerSession`
-- Patient numbers auto-generated: `ASE/YYYY/NNNN`
-- Passwords: bcrypt with cost factor 12
-
----
-
-*Built by Divine Moses Nnata (Eminence) for Anya Specialist Eye Clinic*
-*SmartVision — Because every patient deserves world-class eye care.*
+*Built for Anya Specialist Eye Clinic by Divine Moses Nnata (Eminence)*
