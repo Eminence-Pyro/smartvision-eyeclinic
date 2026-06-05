@@ -2,11 +2,13 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
-      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
-  experimental: { serverComponentsExternalPackages: ['@neondatabase/serverless', 'bcryptjs'] },
+  experimental: {
+    serverComponentsExternalPackages: ["@neondatabase/serverless", "bcryptjs", "nodemailer"],
+  },
 };
 
 export default nextConfig;
