@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- IOL haptics (the two C-shaped arms of the lens) -->
+  <path d="M12 24 C10 14, 20 8, 24 8 C28 8, 38 14, 36 24"
+        stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M12 24 C10 34, 20 40, 24 40 C28 40, 38 34, 36 24"
+        stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- IOL optic zone (the round lens body) -->
+  <circle cx="24" cy="24" r="11" stroke="url(#grad)" stroke-width="2" fill="url(#fillgrad)" opacity="0.15"/>
+  <!-- Eye iris -->
+  <circle cx="24" cy="24" r="8" fill="url(#grad)" opacity="0.9"/>
+  <!-- Pupil -->
+  <circle cx="24" cy="24" r="4" fill="#1e1b4b"/>
+  <!-- Catchlight -->
+  <circle cx="26.5" cy="21.5" r="1.5" fill="white" opacity="0.85"/>
+  <!-- Gradient defs -->
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="fillgrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+</svg>
