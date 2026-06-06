@@ -9,17 +9,19 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn, getInitials } from "@/lib/utils";
+import Logo from "@/components/ui/Logo";
 
 const ALL_NAV = [
-  { href: "/staff/dashboard",   label: "Dashboard",       icon: BarChart2,    roles: ["admin","doctor","front_desk","va_room","accounts","scan_room","theatre","pharmacy"] },
-  { href: "/staff/front-desk",  label: "Front Desk",      icon: UserPlus,     roles: ["admin","front_desk"] },
-  { href: "/staff/va-room",     label: "VA Room",         icon: Activity,     roles: ["admin","va_room"] },
-  { href: "/staff/accounts",    label: "Accounts",        icon: CreditCard,   roles: ["admin","accounts"] },
-  { href: "/staff/doctor",      label: "Doctor",          icon: Stethoscope,  roles: ["admin","doctor"] },
-  { href: "/staff/scan-room",   label: "Scan Room",       icon: Camera,       roles: ["admin","scan_room"] },
-  { href: "/staff/theatre",     label: "Theatre",         icon: Scissors,     roles: ["admin","theatre"] },
-  { href: "/staff/pharmacy",    label: "Pharmacy",        icon: Pill,         roles: ["admin","pharmacy"] },
-  { href: "/staff/admin",       label: "Staff Admin",     icon: Users,        roles: ["admin"] },
+  { href:"/staff/dashboard",        label:"Dashboard",       icon:BarChart2,    roles:["admin","doctor","front_desk","va_room","accounts","scan_room","theatre","pharmacy"] },
+  { href:"/staff/front-desk",       label:"Front Desk",      icon:UserPlus,     roles:["admin","front_desk"] },
+  { href:"/staff/va-room",          label:"VA Room",         icon:Activity,     roles:["admin","va_room"]    },
+  { href:"/staff/accounts",         label:"Accounts",        icon:CreditCard,   roles:["admin","accounts"]   },
+  { href:"/staff/doctor",           label:"Doctor",          icon:Stethoscope,  roles:["admin","doctor"]     },
+  { href:"/staff/scan-room",        label:"Scan Room",       icon:Camera,       roles:["admin","scan_room"]  },
+  { href:"/staff/theatre",          label:"Theatre",         icon:Scissors,     roles:["admin","theatre"]    },
+  { href:"/staff/pharmacy",         label:"Pharmacy",        icon:Pill,         roles:["admin","pharmacy"]   },
+  { href:"/staff/admin",            label:"Staff Admin",     icon:Users,        roles:["admin"]              },
+  { href:"/staff/admin/analytics",  label:"Analytics",       icon:BarChart2,    roles:["admin"]              },
 ];
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
@@ -33,38 +35,27 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
       <aside className={cn(
         "fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 flex flex-col transition-transform duration-300",
         sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         {/* Logo */}
         <div className="flex items-center gap-3 px-5 py-5 border-b border-gray-800">
-          <div className="w-9 h-9 brand-gradient rounded-xl flex items-center justify-center shadow">
-            <Eye className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className="text-white font-bold text-sm leading-none">SmartVision</p>
-            <p className="text-gray-500 text-[10px] mt-0.5 uppercase tracking-wider">Staff Portal</p>
-          </div>
+          <Logo size={32} textColor="white" />
           <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden text-gray-500 hover:text-white">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
           {nav.map(item => {
-            const Icon    = item.icon;
-            const active  = pathname === item.href || pathname.startsWith(item.href + "/");
+            const Icon   = item.icon;
+            const active = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
-              <Link key={item.href} href={item.href}
-                onClick={() => setSidebarOpen(false)}
+              <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
-                  active
-                    ? "bg-brand-600 text-white shadow"
-                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                  active ? "brand-gradient text-white shadow" : "text-gray-400 hover:text-white hover:bg-gray-800"
                 )}>
                 <Icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
@@ -74,7 +65,6 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* User footer */}
         <div className="border-t border-gray-800 p-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 brand-gradient rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
@@ -82,7 +72,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="min-w-0">
               <p className="text-white text-sm font-semibold truncate">{name}</p>
-              <p className="text-gray-500 text-xs capitalize">{role.replace("_", " ")}</p>
+              <p className="text-gray-500 text-xs capitalize">{role.replace("_"," ")}</p>
             </div>
           </div>
           <button onClick={() => signOut({ callbackUrl: "/staff/login" })}
@@ -92,14 +82,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         </div>
       </aside>
 
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col lg:ml-64 overflow-hidden">
-        {/* Top bar */}
         <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-gray-500 hover:text-gray-700">
             <Menu className="h-5 w-5" />
@@ -109,15 +96,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               <Bell className="h-5 w-5" />
             </button>
             <div className="text-sm text-gray-500">
-              {new Date().toLocaleDateString("en-NG", { weekday: "short", day: "numeric", month: "short" })}
+              {new Date().toLocaleDateString("en-NG", { weekday:"short", day:"numeric", month:"short" })}
             </div>
           </div>
         </header>
-
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
