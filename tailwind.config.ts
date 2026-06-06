@@ -10,8 +10,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ── PRIMARY: Purple ───────────────────────────────
         brand: {
-          DEFAULT: "#6d28d9",   // deep violet
+          DEFAULT: "#7c3aed",   // violet-600 — dominant colour
           50:  "#f5f3ff",
           100: "#ede9fe",
           200: "#ddd6fe",
@@ -22,9 +23,11 @@ const config: Config = {
           700: "#6d28d9",
           800: "#5b21b6",
           900: "#4c1d95",
+          950: "#2e1065",
         },
+        // ── SECONDARY: Blue (accent only) ─────────────────
         accent: {
-          DEFAULT: "#2563eb",   // royal blue
+          DEFAULT: "#2563eb",
           50:  "#eff6ff",
           100: "#dbeafe",
           200: "#bfdbfe",
@@ -36,20 +39,16 @@ const config: Config = {
           800: "#1e40af",
           900: "#1e3a8a",
         },
-        silver: {
-          DEFAULT: "#94a3b8",
-          50:  "#f8fafc",
-          100: "#f1f5f9",
-          200: "#e2e8f0",
-        },
       },
       fontFamily: {
         sans:  ["var(--font-inter)", "system-ui", "sans-serif"],
         serif: ["var(--font-playfair)", "Georgia", "serif"],
       },
       backgroundImage: {
-        "brand-gradient": "linear-gradient(135deg, #6d28d9 0%, #2563eb 100%)",
-        "brand-gradient-soft": "linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%)",
+        // Purple dominant gradient with blue as a hint on the right
+        "brand-gradient":      "linear-gradient(135deg, #7c3aed 0%, #6d28d9 60%, #2563eb 100%)",
+        "brand-gradient-soft": "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 70%, #3b82f6 100%)",
+        "brand-gradient-hero": "linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #1d4ed8 100%)",
       },
     },
   },
