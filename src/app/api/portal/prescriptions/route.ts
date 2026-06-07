@@ -8,9 +8,15 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const patientId = (session.user as { id: string }).id;
   const rows = await query(
-    `SELECT p.*, v.visit_date FROM prescriptions p
-     JOIN visits v ON v.id=p.visit_id
-     WHERE v.patient_id=$1 ORDER BY p.created_at DESC LIMIT 30`,
+    `SELECT rx.id, rx.drug_name, rx.dosage, rx.frequency, rx.duration,
+            rx.route, rx.eye_side, rx.quantity, rx.instructions,
+            rx.dispensed, rx.dispensed_at, rx.created_at,
+            v.visit_date, v.tally_number
+     FROM prescriptions rx
+     JOIN visits v ON v.id = rx.visit_id
+     WHERE v.patient_id=$1
+     ORDER BY rx.created_at DESC
+     LIMIT 50`,
     [patientId]
   );
   return NextResponse.json({ prescriptions: rows });
