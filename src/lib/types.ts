@@ -1,4 +1,26 @@
-// SmartVision shared TypeScript types
+// SmartVision — Shared TypeScript types
+
+export type UserRole =
+  | "admin" | "doctor" | "front_desk" | "va_room"
+  | "accounts" | "scan_room" | "theatre" | "pharmacy" | "patient";
+
+export type StaffRole =
+  | "admin" | "doctor" | "front_desk" | "va_room"
+  | "accounts" | "scan_room" | "theatre" | "pharmacy";
+
+export type VisitStatus =
+  | "registered" | "awaiting_payment" | "vision_assessment"
+  | "awaiting_doctor" | "with_doctor" | "awaiting_scan_payment"
+  | "scan_booked" | "scan_done" | "awaiting_surgery"
+  | "surgery_booked" | "pharmacy" | "completed" | "cancelled";
+
+export type PaymentMethod = "cash" | "pos" | "transfer" | "hmo" | "clinic_billed" | "paystack" | "other";
+export type PaymentType   = "consultation" | "express_service" | "medication" | "scan" | "surgery" | "other";
+export type PaymentStatus = "pending" | "paid" | "waived" | "refunded";
+export type AppointmentStatus = "pending" | "confirmed" | "cancelled" | "completed" | "no_show";
+export type EyeSide    = "right" | "left" | "both";
+export type ScanType   = "fundus_photo" | "oct_macular" | "oct_disc" | "gonioscopy" | "pachymetry" | "b_scan" | "visual_field" | "topography" | "other";
+export type SurgeryType = "phacoemulsification" | "glaucoma_surgery" | "trabeculectomy" | "vitrectomy" | "pterygium" | "enucleation" | "evisceration" | "lid_surgery" | "squint_surgery" | "dce" | "other";
 
 export interface Patient {
   id: string;
@@ -13,6 +35,7 @@ export interface Patient {
   hmo_name?: string;
   hmo_number?: string;
   address?: string;
+  state_of_origin?: string;
   occupation?: string;
   next_of_kin?: string;
   next_of_kin_phone?: string;
@@ -21,6 +44,7 @@ export interface Patient {
   allergies?: string;
   email_verified?: boolean;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface Staff {
@@ -35,16 +59,12 @@ export interface Staff {
   created_at?: string;
 }
 
-export type StaffRole =
-  | "admin" | "doctor" | "front_desk" | "va_room"
-  | "accounts" | "scan_room" | "theatre" | "pharmacy";
-
 export interface Visit {
   id: string;
   patient_id: string;
   tally_number: string;
   visit_date: string;
-  status: string;
+  status: VisitStatus | string;
   is_express: boolean;
   chief_complaint?: string;
   registered_by?: string;
@@ -52,6 +72,7 @@ export interface Visit {
   last_name?: string;
   patient_number?: string;
   phone?: string;
+  created_at?: string;
 }
 
 export interface Vitals {
@@ -110,13 +131,13 @@ export interface QueueItem {
 export interface Payment {
   id?: string;
   visit_id: string;
-  type: string;
+  type: PaymentType | string;
   amount: number;
-  method: string;
-  hmo_name?: string;
-  hmo_auth?: string;
+  method: PaymentMethod | string;
   receipt_no?: string;
-  status?: string;
+  status?: PaymentStatus | string;
+  notes?: string;
+  created_at?: string;
 }
 
 export interface Prescription {
@@ -135,23 +156,29 @@ export interface Prescription {
   first_name?: string;
   last_name?: string;
   tally_number?: string;
+  prescribed_by_name?: string;
+  created_at?: string;
 }
 
 export interface Scan {
   id?: string;
   visit_id: string;
-  scan_type: string;
-  image_url?: string;
+  scan_type: ScanType | string;
+  eye_side?: string;
+  indication?: string;
+  image_urls?: string[];
   findings?: string;
   first_name?: string;
   last_name?: string;
   tally_number?: string;
+  created_at?: string;
 }
 
 export interface Surgery {
   id?: string;
   visit_id: string;
-  surgery_type: string;
+  surgery_type: SurgeryType | string;
+  eye_side?: string;
   anaesthesia_type?: string;
   duration_min?: number;
   iol_brand?: string;
@@ -162,5 +189,23 @@ export interface Surgery {
   complications?: string;
   post_op_va_re?: string;
   post_op_va_le?: string;
-  bscan_url?: string;
+  post_op_iop_re?: number;
+  post_op_iop_le?: number;
+  bscan_urls?: string[];
+  first_name?: string;
+  last_name?: string;
+  tally_number?: string;
+  created_at?: string;
+}
+
+export interface Appointment {
+  id: string;
+  patient_id: string;
+  appt_date: string;
+  appt_time: string;
+  visit_type: string;
+  telemedicine: boolean;
+  notes?: string;
+  status: AppointmentStatus | string;
+  created_at?: string;
 }
