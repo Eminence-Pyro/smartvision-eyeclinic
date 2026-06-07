@@ -26,33 +26,55 @@ export default function PatientSearchRegister({ onVisitCreated }: Props) {
     blood_group:"", genotype:"", allergies:"", hmo_name:"", hmo_number:""
   });
 
+  const handleCreateVisit = async (patient: Patient) => {
+    setCreating(true);
+    try {
+      const res = await fetch("/api/visits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: patient.id,
+          chief_complaint: complaint,
+          is_express: isExpress,
+        }),
+      });
+      setCreating(false);
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`Visit #${data.tally_number} created for ${patient.first_name} ${patient.last_name}`);
+        // Reset search state
+        setSearchQ("");
+        setResults([]);
+        setSelected(null);
+        setComplaint("");
+        setExpress(false);
+        onVisitCreated(data.visit_id);
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Failed to create visit.");
+      }
+    } catch (error) {
+      setCreating(false);
+      toast.error("Network error. Please try again.");
+      console.error(error);
+    }
+  };
+
   const handleSearch = async () => {
     if (!searchQ.trim()) return;
     setSearching(true);
-    const res = await fetch(`/api/patients/search?q=${encodeURIComponent(searchQ)}`);
-    const data = await res.json();
-    setResults(data.patients || []);
-    setSearching(false);
-  };
-
-  const handleCreateVisit = async (patient: Patient) => {
-    setCreating(true);
-    const res = await fetch("/api/visits", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patient_id: patient.id,
-        chief_complaint: complaint,
-        is_express: isExpress,
-      }),
-    });
-    setCreating(false);
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/patients/search?q=${encodeURIComponent(searchQ)}`);
       const data = await res.json();
-      toast.success(`Visit #${data.tally_number} created for ${patient.first_name} ${patient.last_name}`);
-      onVisitCreated(data.visit_id);
-    } else {
-      toast.error("Failed to create visit.");
+      setResults(data.patients || []);
+      if (!data.patients || data.patients.length === 0) {
+        toast.info("No patients found. Try creating a new one.");
+      }
+    } catch (error) {
+      toast.error("Search failed. Please try again.");
+      console.error(error);
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -70,6 +92,16 @@ export default function PatientSearchRegister({ onVisitCreated }: Props) {
     if (res.ok) {
       const data = await res.json();
       toast.success(`Patient ${data.patient_number} registered. Visit #${data.tally_number} created.`);
+      // Reset form after successful registration
+      setNewPatient({
+        first_name:"", last_name:"", middle_name:"", date_of_birth:"",
+        gender:"", phone:"", email:"", address:"", state_of_origin:"",
+        occupation:"", next_of_kin:"", next_of_kin_phone:"",
+        blood_group:"", genotype:"", allergies:"", hmo_name:"", hmo_number:""
+      });
+      setComplaint("");
+      setExpress(false);
+      setShowNew(false);
       onVisitCreated(data.visit_id);
     } else {
       const err = await res.json();

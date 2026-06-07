@@ -116,9 +116,19 @@ export default function HomePage() {
   const prevSlide = useCallback(() => goToSlide((slide - 1 + SLIDES.length) % SLIDES.length), [slide, goToSlide]);
 
   useEffect(() => {
-    const t = setInterval(nextSlide, 9000); // 9 seconds between slides
+    const t = setInterval(() => {
+      setSlide(prev => {
+        const next = (prev + 1) % SLIDES.length;
+        setBgLoaded(false);
+        setTimeout(() => {
+          setSlide(next);
+          setBgLoaded(true);
+        }, 600);
+        return prev;
+      });
+    }, 9000); // 9 seconds between slides
     return () => clearInterval(t);
-  }, [nextSlide]);
+  }, []);
 
   // ── Testimonials — slow fade, 10 seconds each ────────────────────────────
   useEffect(() => {
@@ -208,11 +218,11 @@ export default function HomePage() {
 
         {/* Arrow controls */}
         <button onClick={prevSlide}
-          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all">
+          className="absolute left-2 sm:left-6 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all hover:border-white/40">
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button onClick={nextSlide}
-          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all">
+          className="absolute right-2 sm:right-6 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all hover:border-white/40">
           <ChevronRight className="h-5 w-5" />
         </button>
 
