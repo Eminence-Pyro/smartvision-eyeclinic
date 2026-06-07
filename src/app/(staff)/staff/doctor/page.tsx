@@ -57,7 +57,7 @@ export default function DoctorPage() {
     // Load existing vitals and VA
     const [vr, var_] = await Promise.all([
       fetch(`/api/vitals?visit_id=${v.id}`).then(r => r.json()),
-      fetch(`/api/vision-assessment?visit_id=${v.id}`).then(r => r.json()),
+      fetch(`/api/va?visit_id=${v.id}`).then(r => r.json()),
     ]);
     setVitals(vr.vitals || null);
     setVa(var_.assessment || null);

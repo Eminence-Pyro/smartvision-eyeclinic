@@ -1,4 +1,5 @@
 "use client";
+import PortalFooter from "@/components/ui/PortalFooter";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -174,6 +175,7 @@ export default function PatientDashboard() {
           </div>
         </div>
       </main>
+      <PortalFooter />
     </div>
   );
 }

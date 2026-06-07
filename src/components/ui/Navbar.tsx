@@ -2,16 +2,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Menu, X, Phone, ChevronDown } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import Logo from "./Logo";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { label: "Home",       href: "/"            },
-  { label: "About",      href: "/about"       },
-  { label: "Services",   href: "/services"    },
-  { label: "Blog",       href: "/blog"        },
-  { label: "Contact",    href: "/contact"     },
+  { label: "Home",     href: "/" },
+  { label: "About",    href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Blog",     href: "/blog" },
+  { label: "Contact",  href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -60,42 +60,43 @@ export default function Navbar() {
           ))}
         </div>
 
+        {/* CTA — only Patient Portal is public-facing */}
         <div className="hidden md:flex items-center gap-3">
           <Link href="/portal/login"
             className="text-brand border-2 border-brand rounded-full px-5 py-2 text-sm font-semibold hover:bg-brand-50 transition-all">
             Patient Portal
           </Link>
           <Link href="/contact"
-            className="brand-gradient text-white rounded-full px-5 py-2 text-sm font-bold shadow-lg shadow-brand-700/25 hover:opacity-90 transition-all">
-            Book Appointment
+            className="brand-gradient text-white rounded-full px-5 py-2 text-sm font-bold shadow hover:opacity-90 transition-all">
+            Book Now
           </Link>
         </div>
 
-        <button className="md:hidden p-2" onClick={() => setOpen(!open)}>
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {/* Mobile hamburger */}
+        <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-gray-600">
+          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 space-y-1 shadow-xl">
+        <div className="md:hidden bg-white border-t border-gray-100 py-4 px-6 space-y-1">
           {NAV.map(l => (
             <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-              className={cn(
-                "block px-4 py-3 rounded-xl text-sm font-medium transition-all",
-                pathname === l.href ? "bg-brand-50 text-brand font-semibold" : "text-gray-700 hover:bg-gray-50"
+              className={cn("block px-4 py-2.5 rounded-xl text-sm font-medium transition-all",
+                pathname === l.href ? "text-brand bg-brand-50 font-semibold" : "text-gray-600 hover:text-brand hover:bg-brand-50/50"
               )}>
               {l.label}
             </Link>
           ))}
-          <div className="pt-3 border-t border-gray-100 space-y-2">
+          <div className="pt-3 space-y-2">
             <Link href="/portal/login" onClick={() => setOpen(false)}
-              className="block text-center border-2 border-brand text-brand rounded-full py-3 text-sm font-bold">
+              className="block w-full text-center text-brand border-2 border-brand rounded-full px-5 py-2.5 text-sm font-semibold hover:bg-brand-50 transition-all">
               Patient Portal
             </Link>
             <Link href="/contact" onClick={() => setOpen(false)}
-              className="block text-center brand-gradient text-white rounded-full py-3 text-sm font-bold">
-              Book Appointment
+              className="block w-full text-center brand-gradient text-white rounded-full px-5 py-2.5 text-sm font-bold shadow hover:opacity-90 transition-all">
+              Book Now
             </Link>
           </div>
         </div>
