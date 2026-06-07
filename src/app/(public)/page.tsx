@@ -9,6 +9,8 @@ import {
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import Logo from "@/components/ui/Logo";
+import LazyImage from "@/components/ui/LazyImage";
+import LazySection from "@/components/ui/LazySection";
 
 const SLIDES = [
   {
@@ -242,12 +244,14 @@ export default function HomePage() {
             <p className="text-gray-500 max-w-xl mx-auto">From simple eye tests to complex surgical procedures.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SERVICES.map(svc => (
-              <div key={svc.title} className="bg-white rounded-2xl p-6 border border-gray-100 card-hover group hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100 transition-all">
-                <div className="text-3xl mb-4">{svc.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-brand transition-colors">{svc.title}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{svc.desc}</p>
-              </div>
+            {SERVICES.map((svc, idx) => (
+              <LazySection key={svc.title} delay={idx * 60}>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100 card-hover group hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100 transition-all h-full">
+                  <div className="text-3xl mb-4">{svc.icon}</div>
+                  <h3 className="font-bold text-gray-900 mb-2 group-hover:text-brand transition-colors">{svc.title}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{svc.desc}</p>
+                </div>
+              </LazySection>
             ))}
           </div>
           <div className="text-center mt-10">
@@ -262,8 +266,11 @@ export default function HomePage() {
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative">
-            <div className="rounded-3xl overflow-hidden shadow-2xl shadow-brand-700/15 aspect-[4/3]"
-              style={{ backgroundImage:"url(https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&q=80)", backgroundSize:"cover", backgroundPosition:"center" }} />
+            <LazyImage
+              src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&q=80"
+              alt="Eye care specialist"
+              className="rounded-3xl shadow-2xl shadow-brand-700/15 aspect-[4/3]"
+            />
             <div className="absolute -bottom-5 -right-5 bg-white rounded-2xl shadow-xl p-5 border border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 brand-gradient rounded-xl flex items-center justify-center shadow">
@@ -358,10 +365,9 @@ export default function HomePage() {
               { img:"https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600&q=80", cat:"Glaucoma",    title:"The Silent Thief: Understanding Glaucoma",             excerpt:"Glaucoma causes no pain and no early symptoms — yet it destroys vision.", date:"May 28, 2026", read:"4 min" },
               { img:"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80", cat:"Eye Health", title:"5 Signs You Need to See an Eye Doctor Today",           excerpt:"Many serious eye conditions can be treated effectively if caught early.",  date:"May 20, 2026", read:"3 min" },
             ].map((post, i) => (
-              <Link key={i} href="/blog" className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl">
-                <div className="aspect-video overflow-hidden">
-                  <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                </div>
+              <LazySection key={i} delay={i * 100}>
+              <Link href="/blog" className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl block">
+                <LazyImage src={post.img} alt={post.title} className="aspect-video" />
                 <div className="p-5">
                   <span className="text-xs font-bold text-brand bg-brand-50 px-3 py-1 rounded-full">{post.cat}</span>
                   <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug group-hover:text-brand transition-colors">{post.title}</h3>
@@ -369,6 +375,7 @@ export default function HomePage() {
                   <div className="flex justify-between mt-4 text-xs text-gray-400"><span>{post.date}</span><span>{post.read} read</span></div>
                 </div>
               </Link>
+              </LazySection>
             ))}
           </div>
         </div>
