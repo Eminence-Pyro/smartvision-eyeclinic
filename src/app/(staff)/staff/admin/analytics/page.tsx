@@ -233,7 +233,7 @@ export default function AdminAnalyticsPage() {
         </div>
 
         {/* Top diagnoses */}
-        {data?.top_diagnoses && data.top_diagnoses.length > 0 && (
+        {data?.top_diagnoses && Array.isArray(data.top_diagnoses) && data.top_diagnoses.length > 0 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <h3 className="font-bold text-gray-900 mb-5 flex items-center gap-2">
               <Activity className="h-4 w-4 text-brand" /> Top Diagnoses

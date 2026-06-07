@@ -212,15 +212,15 @@ npm run dev
 | Role | Email | Password | Login URL |
 
 |---|---|---|---|
-| Patient | test@patient.com | Test1234! | /portal/login |
-| Admin | admin@anya.com | Admin1234! | /staff/login |
-| Doctor | doctor@anya.com | Doctor1234! | /staff/login |
-| Front Desk | frontdesk@anya.com | Frontdesk1234! | /staff/login |
-| VA Room | varoom@anya.com | Varoom1234! | /staff/login |
-| Accounts | accounts@anya.com | Accounts1234! | /staff/login |
-| Scan Room | scanroom@anya.com | Scanroom1234! | /staff/login |
-| Theatre | theatre@anya.com | Theatre1234! | /staff/login |
-| Pharmacy | pharmacy@anya.com | Pharmacy1234! | /staff/login |
+| Patient | test@patient .com | Test1234! | /portal/login |
+| Admin | admin@anya .com | Admin1234! | /staff/login |
+| Doctor | doctor@anya .com | Doctor1234! | /staff/login |
+| Front Desk | frontdesk@anya .com | Frontdesk1234! | /staff/login |
+| VA Room | varoom@anya .com | Varoom1234! | /staff/login |
+| Accounts | accounts@anya .com | Accounts1234! | /staff/login |
+| Scan Room | scanroom@anya .com | Scanroom1234! | /staff/login |
+| Theatre | theatre@anya .com | Theatre1234! | /staff/login |
+| Pharmacy | pharmacy@anya .com | Pharmacy1234! | /staff/login |
 
 ---
 

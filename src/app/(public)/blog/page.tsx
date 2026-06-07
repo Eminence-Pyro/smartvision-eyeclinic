@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
@@ -21,8 +22,7 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      <div className="relative pt-24 pb-20"
-        style={{ backgroundImage:"url(https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1800&q=80)", backgroundSize:"cover", backgroundPosition:"center" }}>
+      <div className="relative pt-24 pb-20 bg-[url('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=1800&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-gradient-to-r from-brand-900/95 to-brand-800/80" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
           <p className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-3">Knowledge Centre</p>
@@ -44,8 +44,8 @@ export default function BlogPage() {
         {/* Featured post */}
         {featured && (
           <div className="mb-12 bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-xl grid grid-cols-1 lg:grid-cols-2 card-hover">
-            <div className="aspect-video lg:aspect-auto overflow-hidden">
-              <img src={featured.img} alt={featured.title} className="w-full h-full object-cover" />
+            <div className="relative aspect-video lg:aspect-auto overflow-hidden">
+              <Image src={featured.img} alt={featured.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
             </div>
             <div className="p-8 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-4">
@@ -69,8 +69,8 @@ export default function BlogPage() {
           {rest.map(post => (
             <Link key={post.slug} href={`/blog/${post.slug}`}
               className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl">
-              <div className="aspect-video overflow-hidden">
-                <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="relative aspect-video overflow-hidden">
+                <Image src={post.img} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
               <div className="p-5">
                 <span className="text-xs font-bold text-brand bg-brand-50 px-3 py-1 rounded-full">{post.cat}</span>

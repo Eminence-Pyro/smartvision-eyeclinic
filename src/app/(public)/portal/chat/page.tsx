@@ -51,20 +51,41 @@ For medical emergencies, please call us directly. How can I help you today?`,
     setLoading(true);
     try {
       const history = messages.slice(-8).map(m => ({ role: m.role, content: m.content }));
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s total timeout
+      
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg, history }),
+        signal: controller.signal,
       });
-      const data = await res.json();
-      setMessages(prev => [...prev, {
-        id: `a_${Date.now()}`, role: "assistant",
-        content: data.reply || "Sorry, I'm having trouble right now. Please try again.",
-      }]);
-    } catch {
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = res.status === 504 
+          ? "Zinny is taking too long to respond. Please try again in a moment."
+          : errorData.error || "Sorry, I'm having trouble right now. Please try again.";
+        setMessages(prev => [...prev, {
+          id: `err_${Date.now()}`, role: "assistant",
+          content: errorMsg,
+        }]);
+      } else {
+        const data = await res.json();
+        setMessages(prev => [...prev, {
+          id: `a_${Date.now()}`, role: "assistant",
+          content: data.reply || "Sorry, I'm having trouble right now. Please try again.",
+        }]);
+      }
+    } catch (error) {
+      let errorMsg = "Connection error. Please check your internet and try again.";
+      if (error instanceof Error && error.name === 'AbortError') {
+        errorMsg = "Request timed out. Zinny is taking too long to respond. Please try again.";
+      }
       setMessages(prev => [...prev, {
         id: `err_${Date.now()}`, role: "assistant",
-        content: "Connection error. Please check your internet and try again.",
+        content: errorMsg,
       }]);
     }
     setLoading(false);

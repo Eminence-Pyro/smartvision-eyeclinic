@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FileText, ArrowLeft, Eye, Activity, Stethoscope, Pill, Camera } from "lucide-react";
 import { formatDate, VISIT_STATUS_LABELS, VISIT_STATUS_COLORS } from "@/lib/utils";
+import { useLazyLoad } from "@/lib/useLazyLoad";
 
 interface Visit {
   id: string;
@@ -23,21 +24,64 @@ interface VisitDetail {
   scans?: Record<string, unknown>[];
 }
 
+const VISITS_PER_PAGE = 10;
+
 export default function RecordsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [visits, setVisits]         = useState<Visit[]>([]);
   const [selected, setSelected]     = useState<Visit | null>(null);
   const [detail, setDetail]         = useState<VisitDetail | null>(null);
   const [loading, setLoading]       = useState(false);
+  const [allLoaded, setAllLoaded]   = useState(false);
+  const [page, setPage]             = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/portal/login");
   }, [status, router]);
 
+  // Initial load
   useEffect(() => {
-    fetch("/api/portal/visits").then(r => r.json()).then(d => setVisits(d.visits || []));
+    loadVisits(1);
   }, []);
+
+  const loadVisits = async (pageNum: number) => {
+    if (pageNum === 1) setLoading(true);
+    else setLoadingMore(true);
+    
+    try {
+      const res = await fetch(`/api/portal/visits?limit=${VISITS_PER_PAGE}&offset=${(pageNum - 1) * VISITS_PER_PAGE}`);
+      const d = await res.json();
+      const newVisits = d.visits || [];
+      
+      if (pageNum === 1) {
+        setVisits(newVisits);
+      } else {
+        setVisits(prev => [...prev, ...newVisits]);
+      }
+      
+      if (newVisits.length < VISITS_PER_PAGE) {
+        setAllLoaded(true);
+      }
+      setPage(pageNum);
+    } finally {
+      if (pageNum === 1) setLoading(false);
+      else setLoadingMore(false);
+    }
+  };
+
+  const loadMoreTrigger = useCallback(() => {
+    if (!allLoaded && !loadingMore && !loading && page > 0) {
+      loadVisits(page + 1);
+    }
+  }, [page, allLoaded, loadingMore, loading]);
+
+  const loadMoreRef = useLazyLoad({
+    threshold: 0.1,
+    rootMargin: "200px",
+    onVisible: loadMoreTrigger,
+  });
 
   const openVisit = async (v: Visit) => {
     setSelected(v);

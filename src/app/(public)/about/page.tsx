@@ -1,12 +1,10 @@
 "use client";
-import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
-import Logo from "@/components/ui/Logo";
-import { ArrowRight, CheckCircle, Award, Users, Heart, Shield } from "lucide-react";
+import { CheckCircle, Award, Users, Heart, Shield } from "lucide-react";
 
 const TEAM = [
-  { name:"Dr. Anya", title:"Consultant Ophthalmologist · CMD", desc:"15+ years of specialist experience. Expertise in cataract surgery, glaucoma management, and medical retina.", initials:"DA" },
+  { name:"Dr. Anya Kalu", title:"Consultant Ophthalmologist · CMD/CEO", desc:"15+ years of specialist experience. Expertise in cataract surgery, glaucoma management, and medical retina.", initials:"DA" },
   { name:"Senior Optometrist", title:"Chief Optometrist", desc:"Comprehensive eye examinations, contact lens fitting, and visual fields.", initials:"SO" },
   { name:"Theatre Nurse", title:"Senior Scrub Nurse", desc:"Specialised surgical theatre support and pre/post-operative patient care.", initials:"TN" },
 ];
@@ -23,8 +21,7 @@ export default function AboutPage() {
     <div className="min-h-screen bg-white">
       <Navbar />
       {/* Page hero */}
-      <div className="relative pt-24 pb-20 overflow-hidden"
-        style={{ backgroundImage:"url(https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1800&q=80)", backgroundSize:"cover", backgroundPosition:"center" }}>
+      <div className="relative pt-24 pb-20 overflow-hidden bg-[url('https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1800&q=80')] bg-cover bg-center">
         <div className="absolute inset-0 bg-gradient-to-r from-brand-900/95 to-brand-800/80" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
           <p className="text-brand-300 text-xs font-bold uppercase tracking-widest mb-3">About Us</p>
@@ -62,8 +59,7 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl overflow-hidden shadow-2xl aspect-square"
-            style={{ backgroundImage:"url(https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80)", backgroundSize:"cover", backgroundPosition:"center" }} />
+          <div className="rounded-3xl overflow-hidden shadow-2xl aspect-square bg-[url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80')] bg-cover bg-center" />
         </div>
       </section>
 

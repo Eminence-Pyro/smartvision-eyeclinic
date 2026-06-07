@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-require("dotenv").config({ path: ".env.local" });
-const { neon } = require("@neondatabase/serverless");
-const bcrypt   = require("bcryptjs");
+import dotenv from "dotenv";
+import { neon } from "@neondatabase/serverless";
+import bcrypt from "bcryptjs";
+
+dotenv.config({ path: ".env.local" });
 
 if (!process.env.DATABASE_URL) {
   console.error("\n❌  DATABASE_URL not set in .env.local\n"); process.exit(1);
@@ -48,7 +50,7 @@ async function seed() {
   // All staff roles
   const staffAccounts = [
     { first:"Admin",    last:"User",      email:"admin@anya.com",      phone:"+234 800 000 0002", role:"admin",      dept:"Management",  pw:"Admin1234!"      },
-    { first:"Dr. Anya", last:"Okonkwo",   email:"doctor@anya.com",     phone:"+234 800 000 0003", role:"doctor",     dept:"Outpatient",  pw:"Doctor1234!"     },
+    { first:"Dr. Anya", last:"Kalu",      email:"doctor@anya.com",     phone:"+234 800 000 0003", role:"doctor",     dept:"Outpatient",  pw:"Doctor1234!"     },
     { first:"Accounts", last:"Staff",     email:"accounts@anya.com",   phone:"+234 800 000 0004", role:"accounts",   dept:"Accounts",    pw:"Accounts1234!"   },
     { first:"Front",    last:"Desk",      email:"frontdesk@anya.com",  phone:"+234 800 000 0005", role:"front_desk", dept:"Front Desk",  pw:"Frontdesk1234!"  },
     { first:"VA",       last:"Nurse",     email:"varoom@anya.com",     phone:"+234 800 000 0006", role:"va_room",    dept:"VA Room",     pw:"Varoom1234!"     },

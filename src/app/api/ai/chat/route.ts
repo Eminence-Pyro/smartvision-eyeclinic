@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const GROQ_URL   = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
+const REQUEST_TIMEOUT = 30000; // 30 seconds
 
 export async function POST(req: NextRequest) {
   const { message, history = [] } = await req.json();
@@ -39,18 +40,38 @@ Be warm, clear, and helpful. Never provide specific diagnoses. Always end with a
   ];
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
     const res = await fetch(GROQ_URL, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ model: GROQ_MODEL, messages, temperature: 0.6, max_tokens: 600 })
+      body: JSON.stringify({ model: GROQ_MODEL, messages, temperature: 0.6, max_tokens: 600 }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "AI service error." },
+        { status: res.status }
+      );
+    }
+
     const data = await res.json();
     const reply = data.choices?.[0]?.message?.content || "Sorry, I'm having trouble responding right now.";
     return NextResponse.json({ reply });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return NextResponse.json(
+        { error: "Request timed out. Please try again." },
+        { status: 504 }
+      );
+    }
     return NextResponse.json({ error: "AI service unavailable." }, { status: 503 });
   }
 }

@@ -129,6 +129,10 @@ export const authOptions: NextAuthOptions = {
 };
 
 /* ── Helpers ── */
+export function generateOTP(): string {
+  return Math.random().toString().slice(2, 8);
+}
+
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }
