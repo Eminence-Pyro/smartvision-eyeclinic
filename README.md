@@ -9,6 +9,7 @@
 SmartVision is a full-stack web application that digitises every paper-based workflow in a specialist eye clinic — from patient registration at the front desk to post-operative theatre records. It includes a public-facing website with a Zinny AI chatbot, a patient self-service portal, and dedicated dashboards for each department.
 
 ### Design Philosophy
+
 - **Role-gated access** — each staff member sees only what their job requires
 - **Linear patient flow** — digital tally system tracks a patient from registration to discharge
 - **Zero paper** — every record lives in the database, retrievable instantly
@@ -19,6 +20,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ## Tech Stack & Why
 
 | Layer | Technology | Reason |
+
 |---|---|---|
 | Framework | **Next.js 14 (App Router)** | Server components, API routes, file-based routing, edge-ready |
 | Language | **TypeScript** | Type safety across frontend and backend |
@@ -37,6 +39,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ## Features — Implemented
 
 ### Public Website
+
 - Multi-page: Home, About, Services, Blog, Contact
 - Hero carousel (3 slides, 9s auto-advance, smooth cross-fade)
 - Patient testimonials (10s auto-rotate with fade)
@@ -45,6 +48,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 - Fully responsive — all screen sizes
 
 ### Patient Portal (`/portal/`)
+
 - Self-registration with email + password
 - Login: password, OTP (email), or Google Sign-In
 - Medical history: all visits, diagnoses, prescriptions, scans
@@ -55,6 +59,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ### Staff Portal (`/staff/`)
 
 | Department | Route | Role |
+
 |---|---|---|
 | Front Desk | `/staff/front-desk` | `front_desk`, `admin` |
 | VA Room | `/staff/va-room` | `va_room`, `admin` |
@@ -67,6 +72,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 | Analytics | `/staff/admin/analytics` | `admin` only |
 
 #### Front Desk
+
 - Search patients by name / phone / patient number
 - Register new patients (full demographics, HMO, NOK, allergies)
 - Auto-generate patient numbers (ASE/YEAR/XXXX) and daily tally numbers
@@ -75,18 +81,21 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 - Live queue management (call, skip, done)
 
 #### VA Room
+
 - Structured VA entry: unaided, aided, pinhole — both eyes
 - IOP with method (NCT, Goldmann, iCare)
 - Colour vision, cover test, motility, confrontation VF, pupils
 - Auto-advances visit to `awaiting_doctor` on save
 
 #### Accounts
+
 - Record payment for any service type
 - Methods: cash, POS, bank transfer, HMO, clinic-billed
 - HMO: insurer name + authorisation code
 - Auto-generated receipt numbers
 
 #### Doctor
+
 - Patient summary card (vitals + VA visible before consulting)
 - Full SOAP clinical notes — both eyes separately
 - Multi-drug prescription pad
@@ -94,21 +103,25 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 - One-click surgery booking
 
 #### Scan Room
+
 - Booked scans listed by patient
 - Image upload to Cloudinary
 - Findings entry; visit returned to doctor on completion
 
 #### Theatre
+
 - Surgery details: anaesthesia, duration, IOL (brand, model, power, position)
 - Technique notes and complications
 - Post-op VA and IOP
 - B-scan image upload
 
 #### Pharmacy
+
 - Lists all undispensed prescriptions
 - One-click dispense with timestamp
 
 #### Admin
+
 - Create staff accounts (all 8 roles)
 - Toggle active/inactive
 - Full analytics dashboard (7-day trend, revenue breakdown, dept flow, top diagnoses)
@@ -118,6 +131,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ## Features — Not Yet Implemented
 
 | Feature | Notes |
+
 |---|---|
 | **Email (SMTP)** | Config ready in `.env.example`; send OTPs and appointment reminders |
 | **Payment gateway (Paystack)** | Config ready; online fee payment before arriving |
@@ -136,6 +150,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ## Current Limitations & Known Issues
 
 | Issue | Status | Notes |
+
 |---|---|---|
 | Email OTP login requires SMTP config | ⚠️ Not blocking | Works once `SMTP_*` env vars are set |
 | Google OAuth requires console setup | ⚠️ Not blocking | Works once `GOOGLE_CLIENT_ID/SECRET` are set |
@@ -163,6 +178,7 @@ SmartVision is a full-stack web application that digitises every paper-based wor
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - A [Neon](https://neon.tech) PostgreSQL database (free tier)
 - A `.env.local` file (copy from `.env.example`)
@@ -194,6 +210,7 @@ npm run dev
 ### Demo Accounts
 
 | Role | Email | Password | Login URL |
+
 |---|---|---|---|
 | Patient | test@patient.com | Test1234! | /portal/login |
 | Admin | admin@anya.com | Admin1234! | /staff/login |
@@ -209,7 +226,8 @@ npm run dev
 
 ## Patient Flow
 
-```
+```Patient Arrives
+
 Patient Arrives
   → Front Desk (register + vitals + tally)
   → Accounts (pay consultation fee)
@@ -226,7 +244,7 @@ Patient Arrives
 
 ## Project Structure
 
-```
+```SRC
 src/
   app/
     (public)/          # Public site + patient portal
@@ -285,6 +303,7 @@ scripts/
 This project was built by **Divine Moses Nnata (Eminence)**.
 
 For handover to another engineer or AI tool, the most important files to read first are:
+
 1. `README.md` (this file)
 2. `src/lib/types.ts` — all data models
 3. `src/lib/auth/index.ts` — authentication logic
@@ -295,4 +314,4 @@ The app uses **Next.js App Router** exclusively. All data fetching in staff page
 
 ---
 
-*SmartVision Platform · Anya Specialist Eye Clinic · Built June 2026*
+SmartVision Platform · Anya Specialist Eye Clinic · Built June 2026*
