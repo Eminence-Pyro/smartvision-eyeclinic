@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   if (!visit_id) return NextResponse.json({ error: "visit_id required" }, { status: 400 });
 
-  const bmi = weight_kg && height_cm ? calcBMI(weight_kg, height_cm) : null;
+  const bmi = weight_kg && height_cm ? calcBMI(Number(weight_kg), Number(height_cm)) : null;
   const staffId = (session.user as { id: string }).id;
 
   await query(
@@ -25,18 +25,27 @@ export async function POST(req: NextRequest) {
      ON CONFLICT (visit_id) DO UPDATE SET
        weight_kg=$2, height_cm=$3, bmi=$4, bp_systolic=$5, bp_diastolic=$6,
        pulse_bpm=$7, temperature_c=$8, spo2_percent=$9, blood_sugar=$10,
-       notes=$11, recorded_by=$12, recorded_at=NOW()`,
+       notes=$11, recorded_by=$12`,
     [visit_id, weight_kg||null, height_cm||null, bmi,
      bp_systolic||null, bp_diastolic||null, pulse_bpm||null,
      temperature_c||null, spo2_percent||null, blood_sugar||null,
      notes||null, staffId]
   );
 
-  // Advance visit status
+  // Advance visit to awaiting_payment
   await query(
-    "UPDATE visits SET status = 'awaiting_payment', updated_at = NOW() WHERE id = $1",
+    "UPDATE visits SET status='awaiting_payment', updated_at=NOW() WHERE id=$1",
     [visit_id]
   );
 
-  return NextResponse.json({ message: "Vitals saved." }, { status: 201 });
+  return NextResponse.json({ message: "Vitals saved." });
+}
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const visitId = req.nextUrl.searchParams.get("visit_id");
+  if (!visitId) return NextResponse.json({ error: "visit_id required" }, { status: 400 });
+  const rows = await query("SELECT * FROM vitals WHERE visit_id=$1 LIMIT 1", [visitId]);
+  return NextResponse.json({ vitals: rows[0] || null });
 }
