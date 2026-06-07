@@ -154,7 +154,7 @@ export default function PatientSearchRegister({ onVisitCreated }: Props) {
       </div>
 
       {/* New patient form */}
-      {showNew && (
+      {showNewForm && (
         <div className="bg-white rounded-2xl border border-gray-200 p-6">
           <h2 className="font-bold text-gray-900 mb-5 flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-brand" /> Register New Patient
