@@ -6,7 +6,7 @@ import { query } from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    /* ── Google OAuth ── */
+    /* ── Google OAuth (patient only) ── */
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({
@@ -31,13 +31,19 @@ export const authOptions: NextAuthOptions = {
           email: string; role: string; password_hash: string; is_active: boolean;
         }>(
           "SELECT id, first_name, last_name, email, role, password_hash, is_active FROM staff WHERE email=$1",
-          [credentials.email.toLowerCase()]
+          [credentials.email.toLowerCase().trim()]
         );
         const staff = rows[0];
-        if (!staff || !staff.is_active) return null;
+        if (!staff) return null;
+        if (!staff.is_active) return null;
         const ok = await bcrypt.compare(credentials.password, staff.password_hash);
         if (!ok) return null;
-        return { id: staff.id, name: `${staff.first_name} ${staff.last_name}`, email: staff.email, role: staff.role };
+        return {
+          id: staff.id,
+          name: `${staff.first_name} ${staff.last_name}`,
+          email: staff.email,
+          role: staff.role,
+        };
       },
     }),
 
@@ -56,28 +62,31 @@ export const authOptions: NextAuthOptions = {
           email: string; password_hash: string; email_verified: boolean;
         }>(
           "SELECT id, first_name, last_name, email, password_hash, email_verified FROM patients WHERE email=$1",
-          [credentials.email.toLowerCase()]
+          [credentials.email.toLowerCase().trim()]
         );
         const patient = rows[0];
         if (!patient || !patient.password_hash) return null;
         const ok = await bcrypt.compare(credentials.password, patient.password_hash);
         if (!ok) return null;
-        return { id: patient.id, name: `${patient.first_name} ${patient.last_name}`, email: patient.email, role: "patient" };
+        return {
+          id: patient.id,
+          name: `${patient.first_name} ${patient.last_name}`,
+          email: patient.email,
+          role: "patient",
+        };
       },
     }),
   ],
 
   callbacks: {
     async signIn({ user, account }) {
-      /* Handle Google OAuth sign-in — create or fetch patient record */
       if (account?.provider === "google") {
         const email = user.email?.toLowerCase();
         if (!email) return false;
-        const existing = await query<{ id: string; role?: string }>(
+        const existing = await query<{ id: string }>(
           "SELECT id FROM patients WHERE email=$1", [email]
         );
         if (existing.length === 0) {
-          /* Auto-register patient via Google */
           const nameParts = (user.name || "").split(" ");
           const firstName = nameParts[0] || "Google";
           const lastName  = nameParts.slice(1).join(" ") || "User";
@@ -93,29 +102,26 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id   = user.id;
         token.role = (user as { role?: string }).role || "patient";
-      }
-      if (account?.provider === "google" && !token.role) {
-        token.role = "patient";
       }
       return token;
     },
 
     async session({ session, token }) {
       if (token) {
-        (session.user as { id?: string }).id     = token.id as string;
-        (session.user as { role?: string }).role  = token.role as string;
+        (session.user as { id?: string }).id    = token.id as string;
+        (session.user as { role?: string }).role = token.role as string;
       }
       return session;
     },
   },
 
   pages: {
-    signIn:  "/portal/login",
-    error:   "/portal/login",
+    signIn: "/portal/login",
+    error:  "/portal/login",
   },
 
   session: { strategy: "jwt", maxAge: 24 * 60 * 60 },
@@ -128,8 +134,8 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export async function generatePatientNumber(): Promise<string> {
-  const year  = new Date().getFullYear();
-  const rows  = await query<{ count: string }>(
+  const year = new Date().getFullYear();
+  const rows = await query<{ count: string }>(
     "SELECT COUNT(*) as count FROM patients WHERE patient_number LIKE $1",
     [`ASE/${year}/%`]
   );
