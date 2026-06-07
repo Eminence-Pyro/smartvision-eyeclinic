@@ -11,7 +11,6 @@ import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import Logo from "@/components/ui/Logo";
 
-/* ── Hero slides — slit lamp + theatre backgrounds via Unsplash ── */
 const SLIDES = [
   {
     bg: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1800&q=80",
@@ -54,40 +53,32 @@ const SERVICES = [
 ];
 
 const STATS = [
-  { value:"5,000+", label:"Patients Served",    icon:"👥" },
-  { value:"500+",   label:"Surgeries Done",      icon:"🏥" },
-  { value:"15+",    label:"Years Experience",    icon:"⭐" },
-  { value:"98%",    label:"Satisfaction Rate",   icon:"💜" },
+  { value:"5,000+", label:"Patients Served",  icon:"👥" },
+  { value:"500+",   label:"Surgeries Done",    icon:"🏥" },
+  { value:"15+",    label:"Years Experience",  icon:"⭐" },
+  { value:"98%",    label:"Satisfaction Rate", icon:"💜" },
 ];
 
 const TESTIMONIALS = [
   {
-    name: "Mrs. Adaeze Okafor",
-    role: "Cataract Surgery Patient",
+    name: "Mrs. Adaeze Okafor", role: "Cataract Surgery Patient",
     text: "I had been struggling to see for two years. After my phaco surgery at Anya Eye Clinic, I could see clearly the very next morning. The staff were incredibly kind and professional throughout.",
-    rating: 5,
-    avatar: "AO",
+    rating: 5, avatar: "AO",
   },
   {
-    name: "Mr. Emeka Nwosu",
-    role: "Glaucoma Patient",
+    name: "Mr. Emeka Nwosu", role: "Glaucoma Patient",
     text: "I've been coming here for my glaucoma follow-ups for three years. The digital system is a game-changer — my records are always ready, my IOP history is right there for the doctor to see.",
-    rating: 5,
-    avatar: "EN",
+    rating: 5, avatar: "EN",
   },
   {
-    name: "Dr. Ngozi Eze",
-    role: "Diabetic Retinopathy Patient",
+    name: "Dr. Ngozi Eze", role: "Diabetic Retinopathy Patient",
     text: "The online patient portal is amazing. I can book appointments, see my scan results, and chat with the AI assistant all from my phone. Absolutely world-class service for Nigeria.",
-    rating: 5,
-    avatar: "NE",
+    rating: 5, avatar: "NE",
   },
   {
-    name: "Chief Bola Adeyemi",
-    role: "Family of Surgery Patient",
+    name: "Chief Bola Adeyemi", role: "Family of Surgery Patient",
     text: "My mother had eye surgery here. The transparency was what impressed me most — we knew exactly what stage of treatment she was at, from the tally number to the theatre. Highly recommend.",
-    rating: 5,
-    avatar: "BA",
+    rating: 5, avatar: "BA",
   },
 ];
 
@@ -101,37 +92,43 @@ const WHY_US = [
 type ChatMsg = { role: "user" | "ai"; text: string };
 
 export default function HomePage() {
-  const [slide, setSlide]       = useState(0);
-  const [animating, setAnimating] = useState(false);
+  const [slide, setSlide]           = useState(0);
+  const [bgLoaded, setBgLoaded]     = useState(true);
   const [testimonial, setTestimonial] = useState(0);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([
+  const [testimonialFading, setTestFading] = useState(false);
+  const [chatOpen, setChatOpen]     = useState(false);
+  const [chatMsgs, setChatMsgs]     = useState<ChatMsg[]>([
     { role: "ai", text: "Hi! I'm Zinny 👋 — your Anya Eye Clinic assistant. How can I help you today?" }
   ]);
-  const [chatInput, setChatInput] = useState("");
-  const [chatLoading, setLoading] = useState(false);
+  const [chatInput, setChatInput]   = useState("");
+  const [chatLoading, setLoading]   = useState(false);
 
-  const nextSlide = useCallback(() => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => { setSlide(s => (s + 1) % SLIDES.length); setAnimating(false); }, 300);
-  }, [animating]);
+  // ── Hero carousel — slow, smooth cross-fade ──────────────────────────────
+  const goToSlide = useCallback((next: number) => {
+    setBgLoaded(false);
+    setTimeout(() => {
+      setSlide(next);
+      setBgLoaded(true);
+    }, 600); // 600ms fade-out before switching
+  }, []);
 
-  const prevSlide = useCallback(() => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => { setSlide(s => (s - 1 + SLIDES.length) % SLIDES.length); setAnimating(false); }, 300);
-  }, [animating]);
+  const nextSlide = useCallback(() => goToSlide((slide + 1) % SLIDES.length), [slide, goToSlide]);
+  const prevSlide = useCallback(() => goToSlide((slide - 1 + SLIDES.length) % SLIDES.length), [slide, goToSlide]);
 
-  /* Auto-advance hero */
   useEffect(() => {
-    const t = setInterval(nextSlide, 6000);
+    const t = setInterval(nextSlide, 9000); // 9 seconds between slides
     return () => clearInterval(t);
   }, [nextSlide]);
 
-  /* Auto-advance testimonials */
+  // ── Testimonials — slow fade, 10 seconds each ────────────────────────────
   useEffect(() => {
-    const t = setInterval(() => setTestimonial(t => (t + 1) % TESTIMONIALS.length), 5000);
+    const t = setInterval(() => {
+      setTestFading(true);
+      setTimeout(() => {
+        setTestimonial(p => (p + 1) % TESTIMONIALS.length);
+        setTestFading(false);
+      }, 500);
+    }, 10000); // 10 seconds per testimonial
     return () => clearInterval(t);
   }, []);
 
@@ -145,7 +142,13 @@ export default function HomePage() {
       const res = await fetch("/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, history: chatMsgs.slice(-6).map(m => ({ role: m.role === "ai" ? "assistant" : "user", content: m.text })) }),
+        body: JSON.stringify({
+          message: msg,
+          history: chatMsgs.slice(-6).map(m => ({
+            role: m.role === "ai" ? "assistant" : "user",
+            content: m.text,
+          })),
+        }),
       });
       const data = await res.json();
       setChatMsgs(p => [...p, { role: "ai", text: data.reply || "Sorry, try again." }]);
@@ -161,14 +164,19 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
 
-      {/* ── HERO CAROUSEL ── */}
+      {/* ── HERO CAROUSEL — slow cross-fade ── */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
-        {/* Background image */}
+        {/* Background — cross-fade with CSS transition */}
         <div
-          className={`absolute inset-0 transition-opacity duration-700 ${animating ? "opacity-0" : "opacity-100"}`}
-          style={{ backgroundImage: `url(${s.bg})`, backgroundSize: "cover", backgroundPosition: "center" }}
+          className="absolute inset-0 transition-opacity duration-[1000ms] ease-in-out"
+          style={{
+            backgroundImage: `url(${s.bg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: bgLoaded ? 1 : 0,
+          }}
         />
-        {/* Dark overlay with purple tint */}
+        {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-brand-900/70 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950/60 to-transparent" />
 
@@ -176,19 +184,13 @@ export default function HomePage() {
         <div className="relative z-10 h-full flex items-center">
           <div className="max-w-7xl mx-auto px-6 w-full">
             <div className="max-w-2xl">
-              <div className={`transition-all duration-500 ${animating ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
+              <div className={`transition-all duration-700 ease-in-out ${bgLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
                 <span className="inline-flex items-center gap-2 bg-brand/20 border border-brand-400/40 text-brand-300 text-xs font-bold px-4 py-1.5 rounded-full mb-5 backdrop-blur">
                   <Star className="h-3.5 w-3.5" /> {s.tag}
                 </span>
-                <h1 className="font-serif font-black text-5xl md:text-7xl text-white leading-tight mb-2">
-                  {s.title}
-                </h1>
-                <h1 className="font-serif font-black text-5xl md:text-7xl leading-tight mb-6 brand-gradient-text">
-                  {s.titleAccent}
-                </h1>
-                <p className="text-gray-300 text-lg leading-relaxed mb-8 max-w-xl">
-                  {s.sub}
-                </p>
+                <h1 className="font-serif font-black text-5xl md:text-7xl text-white leading-tight mb-2">{s.title}</h1>
+                <h1 className="font-serif font-black text-5xl md:text-7xl leading-tight mb-6 brand-gradient-text">{s.titleAccent}</h1>
+                <p className="text-gray-300 text-lg leading-relaxed mb-8 max-w-xl">{s.sub}</p>
                 <div className="flex flex-wrap gap-4">
                   <Link href={s.ctaHref}
                     className="flex items-center gap-2 brand-gradient text-white rounded-full px-8 py-4 font-bold text-base shadow-2xl shadow-brand-700/40 hover:opacity-90 transition-all">
@@ -204,7 +206,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Slide controls */}
+        {/* Arrow controls */}
         <button onClick={prevSlide}
           className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all">
           <ChevronLeft className="h-5 w-5" />
@@ -214,18 +216,12 @@ export default function HomePage() {
           <ChevronRight className="h-5 w-5" />
         </button>
 
-        {/* Dots */}
+        {/* Slide progress dots */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
           {SLIDES.map((_, i) => (
-            <button key={i} onClick={() => setSlide(i)}
-              className={`rounded-full transition-all duration-300 ${i === slide ? "w-8 h-2.5 bg-brand-400" : "w-2.5 h-2.5 bg-white/40 hover:bg-white/70"}`} />
+            <button key={i} onClick={() => goToSlide(i)}
+              className={`rounded-full transition-all duration-500 ${i === slide ? "w-8 h-2.5 bg-brand-400" : "w-2.5 h-2.5 bg-white/40 hover:bg-white/70"}`} />
           ))}
-        </div>
-
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 right-8 z-20 hidden md:flex flex-col items-center gap-2 text-white/40 text-xs">
-          <span className="writing-mode-vertical rotate-90 tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-10 bg-white/20" />
         </div>
       </section>
 
@@ -242,7 +238,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SERVICES PREVIEW ── */}
+      {/* ── SERVICES ── */}
       <section className="py-24 bg-gray-50 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
@@ -250,12 +246,10 @@ export default function HomePage() {
             <h2 className="font-serif font-black text-4xl md:text-5xl text-gray-900 mb-4">
               Comprehensive Eye Care<br /><span className="brand-gradient-text">Under One Roof</span>
             </h2>
-            <p className="text-gray-500 max-w-xl mx-auto">
-              From simple eye tests to complex surgical procedures, we cover every aspect of ocular health.
-            </p>
+            <p className="text-gray-500 max-w-xl mx-auto">From simple eye tests to complex surgical procedures, we cover every aspect of ocular health.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {SERVICES.map((svc, i) => (
+            {SERVICES.map(svc => (
               <div key={svc.title}
                 className="bg-white rounded-2xl p-6 border border-gray-100 card-hover group hover:border-brand-200 hover:shadow-lg hover:shadow-brand-100 transition-all">
                 <div className="text-3xl mb-4">{svc.icon}</div>
@@ -279,11 +273,9 @@ export default function HomePage() {
       {/* ── ABOUT TEASER ── */}
       <section className="py-24 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Image collage */}
           <div className="relative">
             <div className="rounded-3xl overflow-hidden shadow-2xl shadow-brand-700/15 aspect-[4/3]"
               style={{ backgroundImage:"url(https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&q=80)", backgroundSize:"cover", backgroundPosition:"center" }} />
-            {/* Floating badge */}
             <div className="absolute -bottom-5 -right-5 bg-white rounded-2xl shadow-xl p-5 border border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 brand-gradient rounded-xl flex items-center justify-center shadow">
@@ -308,8 +300,7 @@ export default function HomePage() {
               Where Modern Technology Meets <span className="brand-gradient-text">Human Care</span>
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              Anya Specialist Eye Clinic is led by our Consultant Ophthalmologist with over 15 years of specialist practice.
-              We combine the most advanced diagnostic equipment with a deeply personal approach to every patient.
+              Anya Specialist Eye Clinic is led by our Consultant Ophthalmologist with over 15 years of specialist practice. We combine the most advanced diagnostic equipment with a deeply personal approach to every patient.
             </p>
             <p className="text-gray-600 leading-relaxed mb-7">
               Our SmartVision digital platform means no paper records, no lost results, and no confusion — just seamless, efficient care from registration to discharge.
@@ -325,61 +316,58 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <Link href="/about"
-              className="inline-flex items-center gap-2 text-brand font-bold hover:gap-3 transition-all">
+            <Link href="/about" className="inline-flex items-center gap-2 text-brand font-bold hover:gap-3 transition-all">
               Learn more about us <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
+      {/* ── TESTIMONIALS — slow fade ── */}
       <section className="py-24 bg-gray-950 px-6 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5 brand-gradient" />
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="text-center mb-14">
             <p className="text-brand-400 text-xs font-bold uppercase tracking-widest mb-3">Patient Stories</p>
-            <h2 className="font-serif font-black text-4xl text-white">
-              What Our Patients Say
-            </h2>
+            <h2 className="font-serif font-black text-4xl text-white">What Our Patients Say</h2>
           </div>
 
-          {/* Main testimonial */}
           <div className="relative">
             <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-8 md:p-12 text-center mb-6">
               <Quote className="h-10 w-10 text-brand-400 mx-auto mb-6 opacity-60" />
-              <p className="text-white text-lg md:text-xl leading-relaxed font-light mb-8 max-w-3xl mx-auto italic">
-                &ldquo;{TESTIMONIALS[testimonial].text}&rdquo;
-              </p>
-              <div className="flex items-center justify-center gap-1 mb-4">
-                {[...Array(TESTIMONIALS[testimonial].rating)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <div className="flex items-center justify-center gap-3">
-                <div className="w-12 h-12 brand-gradient rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  {TESTIMONIALS[testimonial].avatar}
+              {/* Smooth fade on text only */}
+              <div className={`transition-opacity duration-500 ease-in-out ${testimonialFading ? "opacity-0" : "opacity-100"}`}>
+                <p className="text-white text-lg md:text-xl leading-relaxed font-light mb-8 max-w-3xl mx-auto italic">
+                  &ldquo;{TESTIMONIALS[testimonial].text}&rdquo;
+                </p>
+                <div className="flex items-center justify-center gap-1 mb-4">
+                  {[...Array(TESTIMONIALS[testimonial].rating)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
                 </div>
-                <div className="text-left">
-                  <p className="text-white font-bold">{TESTIMONIALS[testimonial].name}</p>
-                  <p className="text-gray-400 text-sm">{TESTIMONIALS[testimonial].role}</p>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-12 h-12 brand-gradient rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    {TESTIMONIALS[testimonial].avatar}
+                  </div>
+                  <div className="text-left">
+                    <p className="text-white font-bold">{TESTIMONIALS[testimonial].name}</p>
+                    <p className="text-gray-400 text-sm">{TESTIMONIALS[testimonial].role}</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Testimonial dots */}
             <div className="flex justify-center gap-2">
               {TESTIMONIALS.map((_, i) => (
-                <button key={i} onClick={() => setTestimonial(i)}
+                <button key={i} onClick={() => { setTestFading(true); setTimeout(() => { setTestimonial(i); setTestFading(false); }, 300); }}
                   className={`rounded-full transition-all duration-300 ${i === testimonial ? "w-8 h-2 bg-brand-400" : "w-2 h-2 bg-white/20 hover:bg-white/40"}`} />
               ))}
             </div>
           </div>
 
-          {/* Mini cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
             {TESTIMONIALS.map((t, i) => (
-              <button key={i} onClick={() => setTestimonial(i)}
+              <button key={i} onClick={() => { setTestFading(true); setTimeout(() => { setTestimonial(i); setTestFading(false); }, 300); }}
                 className={`p-4 rounded-xl border text-left transition-all ${i === testimonial ? "bg-brand/20 border-brand-500" : "bg-white/5 border-white/10 hover:border-white/20"}`}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${i === testimonial ? "brand-gradient" : "bg-white/20"}`}>
@@ -410,44 +398,21 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                img: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80",
-                cat: "Cataract",
-                title: "What to Expect from Phacoemulsification Surgery",
-                excerpt: "Modern cataract surgery is one of the safest procedures in medicine. Here's a step-by-step guide to what happens on the day.",
-                date: "June 2, 2026",
-                read: "5 min read",
-              },
-              {
-                img: "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600&q=80",
-                cat: "Glaucoma",
-                title: "The Silent Thief: Understanding Glaucoma",
-                excerpt: "Glaucoma is called the silent thief of sight because it causes no pain and you may not notice vision loss until it's advanced.",
-                date: "May 28, 2026",
-                read: "4 min read",
-              },
-              {
-                img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80",
-                cat: "Eye Health",
-                title: "5 Signs You Need to See an Eye Doctor Today",
-                excerpt: "Many serious eye conditions can be treated effectively if caught early. Don't ignore these warning signs.",
-                date: "May 20, 2026",
-                read: "3 min read",
-              },
+              { img:"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=80", cat:"Cataract", title:"What to Expect from Phacoemulsification Surgery", excerpt:"Modern cataract surgery is one of the safest procedures in medicine. Here's a step-by-step guide.", date:"June 2, 2026", read:"5 min read" },
+              { img:"https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=600&q=80", cat:"Glaucoma", title:"The Silent Thief: Understanding Glaucoma", excerpt:"Glaucoma causes no pain and no early symptoms. By the time you notice vision loss, significant damage may have occurred.", date:"May 28, 2026", read:"4 min read" },
+              { img:"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80", cat:"Eye Health", title:"5 Signs You Need to See an Eye Doctor Today", excerpt:"Many serious eye conditions can be treated effectively if caught early. Don't ignore these warning signs.", date:"May 20, 2026", read:"3 min read" },
             ].map((post, i) => (
               <Link key={i} href="/blog"
-                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl hover:shadow-gray-100">
+                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl">
                 <div className="aspect-video overflow-hidden">
-                  <img src={post.img} alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 </div>
                 <div className="p-5">
                   <span className="text-xs font-bold text-brand bg-brand-50 px-3 py-1 rounded-full">{post.cat}</span>
                   <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug group-hover:text-brand transition-colors">{post.title}</h3>
                   <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
                   <div className="flex items-center justify-between mt-4 text-xs text-gray-400">
-                    <span>{post.date}</span>
-                    <span>{post.read}</span>
+                    <span>{post.date}</span><span>{post.read}</span>
                   </div>
                 </div>
               </Link>
@@ -461,21 +426,11 @@ export default function HomePage() {
         style={{ backgroundImage:"url(https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1800&q=80)", backgroundSize:"cover", backgroundPosition:"center" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-brand-900/95 to-accent-900/90" />
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <h2 className="font-serif font-black text-4xl md:text-5xl text-white mb-5">
-            Ready to See Clearly?
-          </h2>
-          <p className="text-white/70 text-lg mb-8">
-            Book your consultation today. Our team is ready to help.
-          </p>
+          <h2 className="font-serif font-black text-4xl md:text-5xl text-white mb-5">Ready to See Clearly?</h2>
+          <p className="text-white/70 text-lg mb-8">Book your consultation today. Our team is ready to help.</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/contact"
-              className="bg-white text-brand font-bold rounded-full px-9 py-4 hover:bg-gray-50 transition-all shadow-xl">
-              Book Now
-            </Link>
-            <Link href="/portal/register"
-              className="border-2 border-white text-white rounded-full px-9 py-4 font-semibold hover:bg-white/10 transition-all">
-              Create Patient Account
-            </Link>
+            <Link href="/contact" className="bg-white text-brand font-bold rounded-full px-9 py-4 hover:bg-gray-50 transition-all shadow-xl">Book Now</Link>
+            <Link href="/portal/register" className="border-2 border-white text-white rounded-full px-9 py-4 font-semibold hover:bg-white/10 transition-all">Create Patient Account</Link>
           </div>
         </div>
       </section>
@@ -484,8 +439,7 @@ export default function HomePage() {
 
       {/* ── Zinny floating chat ── */}
       <button onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 brand-gradient rounded-full flex items-center justify-center shadow-2xl shadow-brand-700/40 hover:scale-110 transition-transform"
-        title="Chat with Zinny">
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 brand-gradient rounded-full flex items-center justify-center shadow-2xl shadow-brand-700/40 hover:scale-110 transition-transform">
         {chatOpen ? <span className="text-white text-lg font-bold">×</span> : <MessageCircle className="h-6 w-6 text-white" />}
       </button>
 
