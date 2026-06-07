@@ -6,9 +6,9 @@ const nextConfig = {
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@neondatabase/serverless", "bcryptjs", "nodemailer"],
-  },
+  // Disables Next.js telemetry collection
+  // serverExternalPackages replaces the deprecated serverComponentsExternalPackages
+  serverExternalPackages: ["bcryptjs", "nodemailer"],
 };
 
 export default nextConfig;
