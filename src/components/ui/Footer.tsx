@@ -68,7 +68,6 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/portal/login"    className="hover:text-white">Patient Login</Link></li>
               <li><Link href="/portal/register" className="hover:text-white">Register</Link></li>
-              <li><Link href="/staff/login"     className="hover:text-white">Staff Login</Link></li>
             </ul>
           </div>
 
