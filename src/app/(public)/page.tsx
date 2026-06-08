@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   ChevronRight, ArrowRight, Star, Shield, Heart, Award,
-  Activity, Users, MessageCircle, Send, Bot, Loader2,
+  Activity, MessageCircle, Send, Bot, Loader2,
   ChevronLeft, Quote, Play
 } from "lucide-react";
 import Navbar from "@/components/ui/Navbar";
@@ -78,59 +78,48 @@ const WHY_US = [
 type ChatMsg = { role: "user" | "ai"; text: string };
 
 export default function HomePage() {
-  const [slide, setSlide]         = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const [direction, setDirection] = useState<"next"|"prev">("next");
-  const timerRef                  = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const [testimonial, setTestimonial]   = useState(0);
-  const [testFading, setTestFading]     = useState(false);
-
-  const [chatOpen, setChatOpen]   = useState(false);
-  const [chatMsgs, setChatMsgs]   = useState<ChatMsg[]>([
+  const [slide, setSlide]             = useState(0);
+  const [animating, setAnimating]     = useState(false);
+  const [testimonial, setTestimonial] = useState(0);
+  const [testFading, setTestFading]   = useState(false);
+  const [chatOpen, setChatOpen]       = useState(false);
+  const [chatMsgs, setChatMsgs]       = useState<ChatMsg[]>([
     { role: "ai", text: "Hi! I'm Zinny 👋 — your Anya Eye Clinic assistant. How can I help you today?" }
   ]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setLoading] = useState(false);
 
-  // ── Carousel: slide-in animation ──────────────────────────────────────────
-  const changeSlide = useCallback((next: number, dir: "next"|"prev") => {
+  // ── Carousel ──────────────────────────────────────────────────────────────
+  const changeSlide = useCallback((next: number) => {
     if (animating) return;
     setAnimating(true);
-    setDirection(dir);
-    setTimeout(() => {
-      setSlide(next);
-      setAnimating(false);
-    }, 600);
+    setTimeout(() => { setSlide(next); setAnimating(false); }, 600);
   }, [animating]);
 
   const nextSlide = useCallback(() =>
-    changeSlide((slide + 1) % SLIDES.length, "next"), [slide, changeSlide]);
-  const prevSlide = useCallback(() =>
-    changeSlide((slide - 1 + SLIDES.length) % SLIDES.length, "prev"), [slide, changeSlide]);
+    changeSlide((slide + 1) % SLIDES.length), [slide, changeSlide]);
 
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(nextSlide, 9000);
-  }, [nextSlide]);
+  const prevSlide = useCallback(() =>
+    changeSlide((slide - 1 + SLIDES.length) % SLIDES.length), [slide, changeSlide]);
+
+  const goToSlide = useCallback((index: number) =>
+    changeSlide(index), [changeSlide]);
 
   useEffect(() => {
-    const t = setInterval(nextSlide, 9000); // 9 seconds between slides
+    const t = setInterval(nextSlide, 9000);
     return () => clearInterval(t);
   }, [nextSlide]);
 
-  // ── Testimonials: slow auto-fade ──────────────────────────────────────────
+  // ── Testimonials ──────────────────────────────────────────────────────────
   useEffect(() => {
     const t = setInterval(() => {
       setTestFading(true);
-      setTimeout(() => {
-        setTestimonial(p => (p + 1) % TESTIMONIALS.length);
-        setTestFading(false);
-      }, 500);
+      setTimeout(() => { setTestimonial(p => (p + 1) % TESTIMONIALS.length); setTestFading(false); }, 500);
     }, 10000);
     return () => clearInterval(t);
   }, []);
 
+  // ── Zinny chat ────────────────────────────────────────────────────────────
   const sendChat = async () => {
     const msg = chatInput.trim();
     if (!msg || chatLoading) return;
@@ -140,7 +129,12 @@ export default function HomePage() {
     try {
       const res = await fetch("/api/ai/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, history: chatMsgs.slice(-6).map(m => ({ role: m.role === "ai" ? "assistant" : "user", content: m.text })) }),
+        body: JSON.stringify({
+          message: msg,
+          history: chatMsgs.slice(-6).map(m => ({
+            role: m.role === "ai" ? "assistant" : "user", content: m.text,
+          })),
+        }),
       });
       const data = await res.json();
       setChatMsgs(p => [...p, { role: "ai", text: data.reply || "Sorry, try again." }]);
@@ -159,63 +153,97 @@ export default function HomePage() {
       {/* ── HERO CAROUSEL ── */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
 
-        {/* All slide backgrounds — only active one visible */}
+        {/* Slide backgrounds */}
         {SLIDES.map((sl, i) => (
-          <div key={i} className="absolute inset-0 transition-opacity duration-700 ease-in-out"
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-700 ease-in-out bg-cover bg-center"
             style={{
               backgroundImage: `url(${sl.bg})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
               opacity: i === slide ? 1 : 0,
               zIndex: i === slide ? 1 : 0,
-            }} />
+            }}
+          />
         ))}
 
         {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-brand-900/60 to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950/50 to-transparent z-10" />
 
-        {/* Content — fades with slide change */}
+        {/* Content */}
         <div className="relative z-20 h-full flex items-center">
           <div className="max-w-7xl mx-auto px-6 w-full pb-24">
             <div className="max-w-2xl">
               <div className={`transition-all duration-500 ${animating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
+
+                {/* Tag pill */}
                 <span className="inline-flex items-center gap-2 bg-brand/20 border border-brand-400/40 text-brand-300 text-xs font-bold px-4 py-1.5 rounded-full mb-5 backdrop-blur">
                   <Star className="h-3.5 w-3.5" /> {s.tag}
                 </span>
-                <h1 className="font-serif font-black text-5xl md:text-7xl text-white leading-tight mb-2">{s.title}</h1>
-                <h1 className="font-serif font-black text-5xl md:text-7xl leading-tight mb-6 brand-gradient-text">{s.titleAccent}</h1>
+
+                {/* Line 1 heading */}
+                <h1 className="font-serif font-black text-5xl md:text-7xl text-white leading-tight mb-2">
+                  {s.title}
+                </h1>
+
+                {/* Prev arrow + accent heading on same row */}
+                <div className="flex items-center gap-3 mb-6">
+                  <button
+                    onClick={prevSlide}
+                    aria-label="Previous slide"
+                    className="w-10 h-10 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all flex-shrink-0"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <h1 className="font-serif font-black text-5xl md:text-7xl leading-tight brand-gradient-text">
+                    {s.titleAccent}
+                  </h1>
+                </div>
+
+                {/* Sub-text */}
                 <p className="text-gray-300 text-lg leading-relaxed mb-8 max-w-xl">{s.sub}</p>
+
+                {/* CTAs */}
                 <div className="flex flex-wrap gap-4">
-                  <Link href={s.ctaHref}
-                    className="flex items-center gap-2 brand-gradient text-white rounded-full px-8 py-4 font-bold shadow-2xl shadow-brand-700/40 hover:opacity-90 transition-all">
+                  <Link
+                    href={s.ctaHref}
+                    className="flex items-center gap-2 brand-gradient text-white rounded-full px-8 py-4 font-bold shadow-2xl shadow-brand-700/40 hover:opacity-90 transition-all"
+                  >
                     {s.cta} <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link href="/about"
-                    className="flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full px-7 py-4 font-semibold hover:bg-white/20 transition-all">
+                  <Link
+                    href="/about"
+                    className="flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full px-7 py-4 font-semibold hover:bg-white/20 transition-all"
+                  >
                     <Play className="h-4 w-4" /> About Us
                   </Link>
                 </div>
+
               </div>
             </div>
           </div>
         </div>
 
-        {/* Arrow controls */}
-        <button onClick={prevSlide}
-          className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <button onClick={nextSlide}
-          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all">
+        {/* Next arrow — right edge, vertically centered on slide */}
+        <button
+          onClick={nextSlide}
+          aria-label="Next slide"
+          className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 backdrop-blur border border-white/20 text-white rounded-full flex items-center justify-center hover:bg-brand transition-all"
+        >
           <ChevronRight className="h-5 w-5" />
         </button>
 
         {/* Slide progress dots */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
           {SLIDES.map((_, i) => (
-            <button key={i} onClick={() => goToSlide(i)}
-              className={`rounded-full transition-all duration-500 ${i === slide ? "w-8 h-2.5 bg-brand-400" : "w-2.5 h-2.5 bg-white/40 hover:bg-white/70"}`} />
+            <button
+              key={i}
+              onClick={() => goToSlide(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              className={`rounded-full transition-all duration-500 ${
+                i === slide ? "w-8 h-2.5 bg-brand-400" : "w-2.5 h-2.5 bg-white/40 hover:bg-white/70"
+              }`}
+            />
           ))}
         </div>
       </section>
@@ -340,8 +368,14 @@ export default function HomePage() {
           </div>
           <div className="flex justify-center gap-2">
             {TESTIMONIALS.map((_, i) => (
-              <button key={i} onClick={() => { setTestFading(true); setTimeout(() => { setTestimonial(i); setTestFading(false); }, 300); }}
-                className={`rounded-full transition-all duration-300 ${i === testimonial ? "w-8 h-2 bg-brand-400" : "w-2 h-2 bg-white/20 hover:bg-white/40"}`} />
+              <button
+                key={i}
+                onClick={() => { setTestFading(true); setTimeout(() => { setTestimonial(i); setTestFading(false); }, 300); }}
+                aria-label={`View testimonial ${i + 1}`}
+                className={`rounded-full transition-all duration-300 ${
+                  i === testimonial ? "w-8 h-2 bg-brand-400" : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                }`}
+              />
             ))}
           </div>
         </div>
@@ -366,15 +400,15 @@ export default function HomePage() {
               { img:"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=80", cat:"Eye Health", title:"5 Signs You Need to See an Eye Doctor Today",           excerpt:"Many serious eye conditions can be treated effectively if caught early.",  date:"May 20, 2026", read:"3 min" },
             ].map((post, i) => (
               <LazySection key={i} delay={i * 100}>
-              <Link href="/blog" className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl block">
-                <LazyImage src={post.img} alt={post.title} className="aspect-video" />
-                <div className="p-5">
-                  <span className="text-xs font-bold text-brand bg-brand-50 px-3 py-1 rounded-full">{post.cat}</span>
-                  <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug group-hover:text-brand transition-colors">{post.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
-                  <div className="flex justify-between mt-4 text-xs text-gray-400"><span>{post.date}</span><span>{post.read} read</span></div>
-                </div>
-              </Link>
+                <Link href="/blog" className="group bg-white rounded-2xl border border-gray-100 overflow-hidden card-hover hover:shadow-xl block">
+                  <LazyImage src={post.img} alt={post.title} className="aspect-video" />
+                  <div className="p-5">
+                    <span className="text-xs font-bold text-brand bg-brand-50 px-3 py-1 rounded-full">{post.cat}</span>
+                    <h3 className="font-bold text-gray-900 mt-3 mb-2 leading-snug group-hover:text-brand transition-colors">{post.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">{post.excerpt}</p>
+                    <div className="flex justify-between mt-4 text-xs text-gray-400"><span>{post.date}</span><span>{post.read} read</span></div>
+                  </div>
+                </Link>
               </LazySection>
             ))}
           </div>
@@ -382,8 +416,10 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA BANNER ── */}
-      <section className="py-20 px-6 relative overflow-hidden"
-        style={{ backgroundImage:"url(https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1800&q=80)", backgroundSize:"cover", backgroundPosition:"center" }}>
+      <section
+        className="py-20 px-6 relative overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: "url(https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=1800&q=80)" }}
+      >
         <div className="absolute inset-0 bg-gradient-to-r from-brand-900/95 to-accent-900/90" />
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="font-serif font-black text-4xl md:text-5xl text-white mb-5">Ready to See Clearly?</h2>
@@ -398,26 +434,38 @@ export default function HomePage() {
       <Footer />
 
       {/* ── Zinny floating chat ── */}
-      <button onClick={() => setChatOpen(!chatOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 brand-gradient rounded-full flex items-center justify-center shadow-2xl shadow-brand-700/40 hover:scale-110 transition-transform">
-        {chatOpen ? <span className="text-white text-xl font-bold">×</span> : <MessageCircle className="h-6 w-6 text-white" />}
+      <button
+        onClick={() => setChatOpen(!chatOpen)}
+        aria-label={chatOpen ? "Close Zinny chat" : "Open Zinny chat"}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 brand-gradient rounded-full flex items-center justify-center shadow-2xl shadow-brand-700/40 hover:scale-110 transition-transform"
+      >
+        {chatOpen
+          ? <span className="text-white text-xl font-bold" aria-hidden="true">×</span>
+          : <MessageCircle className="h-6 w-6 text-white" />}
       </button>
 
       {chatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col" style={{ maxHeight:"420px" }}>
+        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col max-h-[420px]">
           <div className="brand-gradient p-4 flex items-center gap-3">
             <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
               <Bot className="h-5 w-5 text-white" />
             </div>
             <div>
               <p className="text-white font-bold text-sm">Zinny</p>
-              <div className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-300" /><p className="text-white/60 text-xs">AI Assistant · Online</p></div>
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-300" />
+                <p className="text-white/60 text-xs">AI Assistant · Online</p>
+              </div>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50">
             {chatMsgs.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed ${m.role === "user" ? "brand-gradient text-white" : "bg-white border border-gray-100 text-gray-800 shadow-sm"}`}>
+                <div className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                  m.role === "user"
+                    ? "brand-gradient text-white"
+                    : "bg-white border border-gray-100 text-gray-800 shadow-sm"
+                }`}>
                   {m.text}
                 </div>
               </div>
@@ -425,16 +473,26 @@ export default function HomePage() {
             {chatLoading && (
               <div className="flex justify-start">
                 <div className="bg-white border border-gray-100 rounded-xl px-3 py-2 flex items-center gap-1.5 shadow-sm">
-                  <Loader2 className="h-3 w-3 animate-spin text-brand" /><span className="text-xs text-gray-400">Zinny is typing…</span>
+                  <Loader2 className="h-3 w-3 animate-spin text-brand" />
+                  <span className="text-xs text-gray-400">Zinny is typing…</span>
                 </div>
               </div>
             )}
           </div>
           <div className="p-3 border-t border-gray-100 flex gap-2 bg-white">
-            <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()}
+            <input
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && sendChat()}
               placeholder="Ask Zinny about our services…"
-              className="flex-1 text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-brand" />
-            <button onClick={sendChat} disabled={!chatInput.trim() || chatLoading} className="brand-gradient text-white rounded-xl px-3 py-2 disabled:opacity-50">
+              className="flex-1 text-xs border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:border-brand"
+            />
+            <button
+              onClick={sendChat}
+              disabled={!chatInput.trim() || chatLoading}
+              aria-label="Send message"
+              className="brand-gradient text-white rounded-xl px-3 py-2 disabled:opacity-50"
+            >
               <Send className="h-3.5 w-3.5" />
             </button>
           </div>

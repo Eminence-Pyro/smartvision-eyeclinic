@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-require("dotenv").config({ path: ".env.local" });
-const { neon } = require("@neondatabase/serverless");
+import { config } from "dotenv";
+import { neon } from "@neondatabase/serverless";
+
+config({ path: ".env.local" });
 
 if (!process.env.DATABASE_URL) {
   console.error("\n❌  DATABASE_URL not set in .env.local\n"); process.exit(1);
