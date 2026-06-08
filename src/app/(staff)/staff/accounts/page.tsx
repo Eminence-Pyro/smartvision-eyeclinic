@@ -253,7 +253,7 @@ export default function AccountsPage() {
 function TodaySummary() {
   const [total, setTotal] = useState(0);
   useEffect(() => {
-    fetch("/api/payments?date=today").then(r => r.json()).then(d => {
+    fetch("/api/payments?date=today").then(r => r.ok ? r.json() : {}).then(d => {
       const sum = (d.payments || []).filter((p: { status: string }) => p.status === "paid").reduce((s: number, p: { amount: number }) => s + Number(p.amount), 0);
       setTotal(sum);
     });
@@ -264,7 +264,7 @@ function TodaySummary() {
 function TodayPaymentsTable() {
   const [rows, setRows] = useState<{ id: string; type: string; amount: number; method: string; receipt_number: string; paid_at: string; description: string; first_name: string; last_name: string; tally_number: string }[]>([]);
   useEffect(() => {
-    fetch("/api/payments?date=today").then(r => r.json()).then(d => setRows(d.payments || []));
+    fetch("/api/payments?date=today").then(r => r.ok ? r.json() : {}).then(d => setRows(d.payments || []));
   }, []);
   return (
     <table className="w-full text-sm">
