@@ -23,11 +23,11 @@ export default function PatientDashboard() {
   }, [session, status, router]);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-    fetch("/api/portal/visits").then(r => r.json()).then(d => setVisits(d.visits || []));
-    fetch("/api/portal/appointments").then(r => r.json()).then(d => setAppts(d.appointments || []));
-    fetch("/api/portal/prescriptions").then(r => r.json()).then(d => setRx(d.prescriptions || []));
-  }, [status]);
+    if (status !== "authenticated" || !(session?.user as { id?: string })?.id) return;
+    fetch("/api/portal/visits").then(r => r.json()).then(d => setVisits(d.visits || [])).catch(()=>{});
+    fetch("/api/portal/appointments").then(r => r.json()).then(d => setAppts(d.appointments || [])).catch(()=>{});
+    fetch("/api/portal/prescriptions").then(r => r.json()).then(d => setRx(d.prescriptions || [])).catch(()=>{});
+  }, [status, session]);
 
   const name = session?.user?.name || "Patient";
   const activeVisit = visits.find(v => v.status !== "completed" && v.status !== "cancelled");
@@ -37,6 +37,7 @@ export default function PatientDashboard() {
     { href:"/portal/records",      icon: FileText,    label:"Medical Records",   color:"bg-blue-100 text-blue-600"    },
     { href:"/portal/medications",  icon: Pill,        label:"My Medications",    color:"bg-purple-100 text-purple-600"},
     { href:"/portal/chat",         icon: MessageCircle,label:"Chat / Telemedicine",color:"bg-green-100 text-green-600"},
+    { href:"/portal/settings",     icon: User,        label:"Account Settings",  color:"bg-gray-100 text-gray-600"   },
   ];
 
   if (status === "loading") {
