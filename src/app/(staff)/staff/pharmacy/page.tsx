@@ -24,10 +24,10 @@ export default function PharmacyPage() {
 
   const load = () => {
     fetch("/api/prescriptions?date=today&dispensed=false")
-      .then(r => r.json()).then(d => setPrescriptions(d.prescriptions || []));
+      .then(r => r.ok ? r.json() : {}).then(d => setPrescriptions(d.prescriptions || []));
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (status === "authenticated") load(); }, [status]);
 
   const dispense = async (id: string) => {
     setDispensing(id);
