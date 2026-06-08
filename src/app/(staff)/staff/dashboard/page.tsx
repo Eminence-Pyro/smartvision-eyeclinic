@@ -35,6 +35,10 @@ export default function StaffDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/staff/login");
+    if (status === "authenticated") {
+      const r = (session?.user as { role?: string })?.role;
+      if (r === "patient") router.push("/portal/dashboard");
+    }
   }, [status, router]);
 
   useEffect(() => {
