@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Eye, UserPlus, Activity, CreditCard, Stethoscope,
   Camera, Scissors, Pill, Users, BarChart2, LogOut,
-  Menu, X, Bell, ChevronRight
+  Menu, X, Bell, Settings
 } from "lucide-react";
 import { useState } from "react";
 import { cn, getInitials } from "@/lib/utils";
@@ -23,6 +23,7 @@ const ALL_NAV = [
   { href:"/staff/pharmacy",         label:"Pharmacy",        icon:Pill,         roles:["admin","pharmacy"]   },
   { href:"/staff/admin",            label:"Staff Admin",     icon:Users,        roles:["admin"]              },
   { href:"/staff/admin/analytics",  label:"Analytics",       icon:BarChart2,    roles:["admin"]              },
+  { href:"/staff/settings",          label:"Settings",        icon:Settings,     roles:["admin","doctor","front_desk","va_room","accounts","scan_room","theatre","pharmacy"] },
 ];
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
