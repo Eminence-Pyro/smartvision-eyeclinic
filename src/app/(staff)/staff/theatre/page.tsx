@@ -32,7 +32,7 @@ export default function TheatrePage() {
 
   useEffect(() => {
     fetch("/api/surgeries?status=booked&date=today")
-      .then(r => r.json()).then(d => setSurgeries(d.surgeries || []));
+      .then(r => r.ok ? r.json() : {}).then(d => setSurgeries(d.surgeries || []));
   }, []);
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
