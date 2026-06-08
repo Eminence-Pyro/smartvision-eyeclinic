@@ -35,7 +35,7 @@ export default function VARoomPage() {
 
   useEffect(() => {
     fetch("/api/visits?date=today&status=vision_assessment")
-      .then(r => r.json()).then(d => setVisits(d.visits || []));
+      .then(r => r.ok ? r.json() : {}).then(d => setVisits(d.visits || []));
   }, []);
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
