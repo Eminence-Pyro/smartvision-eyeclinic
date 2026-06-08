@@ -27,7 +27,7 @@ export default function ScanRoomPage() {
 
   useEffect(() => {
     fetch("/api/scans?status=booked&date=today")
-      .then(r => r.json()).then(d => setScans(d.scans || []));
+      .then(r => r.ok ? r.json() : {}).then(d => setScans(d.scans || []));
   }, []);
 
   const uploadToCloudinary = async (file: File): Promise<string> => {
@@ -68,7 +68,7 @@ export default function ScanRoomPage() {
     if (res.ok) {
       toast.success("Scan results saved. Patient sent back to doctor.");
       setSelected(null); setFindings(""); setImages([]);
-      fetch("/api/scans?status=booked&date=today").then(r => r.json()).then(d => setScans(d.scans || []));
+      fetch("/api/scans?status=booked&date=today").then(r => r.ok ? r.json() : {}).then(d => setScans(d.scans || []));
     } else toast.error("Failed to save scan results.");
   };
 
