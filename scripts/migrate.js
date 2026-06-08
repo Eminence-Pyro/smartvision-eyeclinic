@@ -34,6 +34,7 @@ async function migrate() {
     blood_group      TEXT,
     genotype         TEXT,
     allergies        TEXT,
+    avatar_url       TEXT,
     created_at       TIMESTAMPTZ DEFAULT NOW(),
     updated_at       TIMESTAMPTZ DEFAULT NOW()
   )`;
@@ -52,6 +53,7 @@ async function migrate() {
     department    TEXT,
     password_hash TEXT NOT NULL,
     is_active     BOOLEAN DEFAULT TRUE,
+    avatar_url    TEXT,
     created_at    TIMESTAMPTZ DEFAULT NOW(),
     updated_at    TIMESTAMPTZ DEFAULT NOW()
   )`;
