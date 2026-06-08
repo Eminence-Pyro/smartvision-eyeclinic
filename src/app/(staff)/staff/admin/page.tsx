@@ -59,12 +59,18 @@ export default function AdminPage() {
   };
 
   const toggleActive = async (id: string, active: boolean) => {
-    await fetch(`/api/staff/${id}`, {
-      method:"PATCH", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ is_active: !active })
+    const res = await fetch("/api/staff", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, is_active: active }),
     });
-    toast.success(`Staff account ${active ? "deactivated" : "activated"}.`);
-    load();
+    if (res.ok) {
+      toast.success(active ? "Account activated." : "Account deactivated.");
+      load();
+    } else {
+      const err = await res.json();
+      toast.error(err.error || "Failed to update account.");
+    }
   };
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
