@@ -48,7 +48,7 @@ export default function DoctorPage() {
 
   useEffect(() => {
     fetch("/api/visits?date=today&status=awaiting_doctor")
-      .then(r => r.json()).then(d => setVisits(d.visits || []));
+      .then(r => r.ok ? r.json() : {}).then(d => setVisits(d.visits || []));
   }, []);
 
   const selectVisit = async (v: typeof visits[0]) => {
