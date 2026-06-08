@@ -122,6 +122,9 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/portal/login",
     error:  "/portal/login",
+    // Staff use /staff/login — NextAuth shares one session namespace,
+    // so staff and patients share the same cookie domain but different roles.
+    // Role checks in each page guard access appropriately.
   },
 
   session: { strategy: "jwt", maxAge: 24 * 60 * 60 },
