@@ -261,6 +261,17 @@ async function migrate() {
   )`;
   console.log("✅  otp_tokens");
 
+  await sql`CREATE TABLE IF NOT EXISTS audit_log (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    actor_id    UUID REFERENCES staff(id),
+    action      TEXT NOT NULL,
+    entity_type TEXT,
+    entity_id   UUID,
+    details     JSONB,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+  )`;
+  console.log("✅  audit_log");
+
   console.log("\n🎉  All migrations complete! Run: node scripts/seed.js\n");
 }
 
