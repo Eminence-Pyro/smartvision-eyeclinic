@@ -12,6 +12,7 @@ const sql = neon(process.env.DATABASE_URL);
 async function migrate() {
   console.log("\n🔧  Running migrations...\n");
 
+  // ── Core tables ────────────────────────────────────────
   await sql`CREATE TABLE IF NOT EXISTS patients (
     id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     first_name       TEXT NOT NULL,
@@ -58,6 +59,20 @@ async function migrate() {
     updated_at    TIMESTAMPTZ DEFAULT NOW()
   )`;
   console.log("✅  staff");
+
+  // ── ALTER existing tables to add columns that may be missing ──
+  // (safe: DO NOTHING if column already exists)
+  const alterations = [
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS avatar_url TEXT",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS state_of_origin TEXT",
+    "ALTER TABLE staff    ADD COLUMN IF NOT EXISTS avatar_url TEXT",
+    "ALTER TABLE staff    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()",
+  ];
+  for (const stmt of alterations) {
+    await sql.unsafe(stmt);
+  }
+  console.log("✅  column alterations applied");
 
   await sql`CREATE TABLE IF NOT EXISTS visits (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
