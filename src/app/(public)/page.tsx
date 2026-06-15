@@ -167,22 +167,24 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Controls — bottom-right, clear of all text ── */}
-        <div className="absolute bottom-7 right-7 z-30 flex items-center gap-3">
-          <button onClick={handlePrev} aria-label="Previous slide"
-            className="w-10 h-10 rounded-full bg-white/15 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-brand-600 hover:border-brand transition-all duration-200">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="flex gap-1.5">
-            {SLIDES.map((_,i)=>(
-              <button key={i} onClick={()=>{goTo(i);startTimer();}} aria-label={`Go to slide ${i+1}`}
-                className={`rounded-full transition-all duration-400 ${i===slide?"w-7 h-2.5 bg-brand-400":"w-2.5 h-2.5 bg-white/35 hover:bg-white/65"}`} />
-            ))}
-          </div>
-          <button onClick={handleNext} aria-label="Next slide"
-            className="w-10 h-10 rounded-full bg-white/15 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-brand-600 hover:border-brand transition-all duration-200">
-            <ChevronRight className="h-5 w-5" />
-          </button>
+        {/* ── Prev button — left-center ── */}
+        <button onClick={handlePrev} aria-label="Previous slide"
+          className="absolute left-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/15 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-brand-600 hover:border-brand transition-all duration-200 shadow-lg">
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+
+        {/* ── Next button — right-center ── */}
+        <button onClick={handleNext} aria-label="Next slide"
+          className="absolute right-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/15 backdrop-blur border border-white/25 text-white flex items-center justify-center hover:bg-brand-600 hover:border-brand transition-all duration-200 shadow-lg">
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* ── Dots — bottom-center ── */}
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+          {SLIDES.map((_,i)=>(
+            <button key={i} onClick={()=>{goTo(i);startTimer();}} aria-label={`Go to slide ${i+1}`}
+              className={`rounded-full transition-all duration-300 ${i===slide?"w-7 h-2.5 bg-brand-400":"w-2.5 h-2.5 bg-white/35 hover:bg-white/65"}`} />
+          ))}
         </div>
       </section>
 
