@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Users, UserPlus, Shield, Eye, EyeOff, CheckCircle2, XCircle, Edit } from "lucide-react";
+import { Users, UserPlus, Shield, Eye, EyeOff, CheckCircle2, XCircle, Trash2, Key } from "lucide-react";
 import StaffLayout from "@/components/staff/StaffLayout";
 import type { Staff } from "@/lib/types";
 
@@ -56,6 +56,28 @@ export default function AdminPage() {
       const err = await res.json();
       toast.error(err.error || "Failed to create account.");
     }
+  };
+
+  const resetPassword = async (id: string, name: string) => {
+    const newPw = prompt(`New password for ${name} (min 8 chars):`);
+    if (!newPw) return;
+    if (newPw.length < 8) { toast.error("Password must be at least 8 characters."); return; }
+    const res = await fetch("/api/auth/reset-password", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target_id: id, target_type: "staff", new_password: newPw }),
+    });
+    if (res.ok) toast.success(`Password reset for ${name}.`);
+    else { const d = await res.json(); toast.error(d.error || "Reset failed."); }
+  };
+
+  const removeAccount = async (id: string, name: string) => {
+    if (!confirm(`Deactivate account for ${name}? They will lose access immediately.`)) return;
+    const res = await fetch("/api/staff", {
+      method: "DELETE", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (res.ok) { toast.success(`${name} deactivated.`); load(); }
+    else { const d = await res.json(); toast.error(d.error || "Failed."); }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
@@ -201,6 +223,14 @@ export default function AdminPage() {
                       <button onClick={() => toggleActive(s.id, s.is_active)}
                         className={`text-xs px-3 py-1.5 rounded-lg font-semibold border transition-all ${s.is_active ? "border-red-200 text-red-600 hover:bg-red-50" : "border-green-200 text-green-600 hover:bg-green-50"}`}>
                         {s.is_active ? "Deactivate" : "Activate"}
+                      </button>
+                      <button onClick={() => resetPassword(s.id, `${s.first_name} ${s.last_name}`)}
+                        className="text-xs px-3 py-1.5 rounded-lg font-semibold border border-yellow-200 text-yellow-700 hover:bg-yellow-50 flex items-center gap-1 transition-all">
+                        <Key className="h-3 w-3" /> Reset PW
+                      </button>
+                      <button onClick={() => removeAccount(s.id, `${s.first_name} ${s.last_name}`)}
+                        className="text-xs px-3 py-1.5 rounded-lg font-semibold border border-gray-200 text-gray-500 hover:border-red-200 hover:text-red-600 hover:bg-red-50 flex items-center gap-1 transition-all">
+                        <Trash2 className="h-3 w-3" /> Remove
                       </button>
                     </td>
                   </tr>
