@@ -70,7 +70,7 @@ async function migrate() {
     "ALTER TABLE patients ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()",
   ];
   for (const stmt of alterations) {
-    await sql.unsafe(stmt);
+    await sql(stmt);
   }
   console.log("✅  column alterations applied");
 

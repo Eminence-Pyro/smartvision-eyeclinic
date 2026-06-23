@@ -77,7 +77,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5"><Phone className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" /><span>+234 XXX XXX XXXX</span></li>
               <li className="flex items-start gap-2.5"><Mail  className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" /><span>info@anyaeyeclinic.com</span></li>
-              <li className="flex items-start gap-2.5"><MapPin className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" /><span>Anya Specialist Eye Clinic, Nigeria</span></li>
+              <li className="flex items-start gap-2.5"><MapPin className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" /><span>No. 30 Ohafia Street, Umuahia, Abia State, Nigeria</span></li>
               <li className="flex items-start gap-2.5"><Clock  className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" /><span>Mon–Sat 8:00am – 5:00pm</span></li>
             </ul>
           </div>
